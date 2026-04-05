@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useReducer } from "react";
 import { getDB } from "./database";
-import { getAll, getAllByIndex } from "./operations";
+import { getAll, getAllByIndex, getById, create, update, remove } from "./operations";
 import type { Module, Level, Dictation, Poem } from "./schema";
 
 // --- useDB ---
@@ -240,4 +240,108 @@ export function useHasContent(): UseHasContentResult {
   }, []);
 
   return { hasContent, isLoading };
+}
+
+// --- useDictation (single item) ---
+
+interface UseDictationResult {
+  dictation: Dictation | undefined;
+  isLoading: boolean;
+}
+
+export function useDictation(id: string): UseDictationResult {
+  const [dictation, setDictation] = useState<Dictation | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getById("dictations", id)
+      .then((data) => {
+        if (!cancelled) {
+          setDictation(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { dictation, isLoading };
+}
+
+// --- usePoem (single item) ---
+
+interface UsePoemResult {
+  poem: Poem | undefined;
+  isLoading: boolean;
+}
+
+export function usePoem(id: string): UsePoemResult {
+  const [poem, setPoem] = useState<Poem | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    getById("poems", id)
+      .then((data) => {
+        if (!cancelled) {
+          setPoem(data);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { poem, isLoading };
+}
+
+// --- useDictationMutations ---
+
+export function useDictationMutations() {
+  const createDictation = useCallback(
+    (data: Omit<Dictation, "id">) => create("dictations", { ...data, id: crypto.randomUUID() } as Dictation),
+    []
+  );
+
+  const updateDictation = useCallback(
+    (id: string, data: Partial<Dictation>) => update("dictations", id, data),
+    []
+  );
+
+  const deleteDictation = useCallback(
+    (id: string) => remove("dictations", id),
+    []
+  );
+
+  return { createDictation, updateDictation, deleteDictation };
+}
+
+// --- usePoemMutations ---
+
+export function usePoemMutations() {
+  const createPoem = useCallback(
+    (data: Omit<Poem, "id">) => create("poems", { ...data, id: crypto.randomUUID() } as Poem),
+    []
+  );
+
+  const updatePoem = useCallback(
+    (id: string, data: Partial<Poem>) => update("poems", id, data),
+    []
+  );
+
+  const deletePoem = useCallback(
+    (id: string) => remove("poems", id),
+    []
+  );
+
+  return { createPoem, updatePoem, deletePoem };
 }

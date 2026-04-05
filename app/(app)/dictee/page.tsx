@@ -1,16 +1,32 @@
 "use client";
 
+import { useState } from "react";
 import { ViewTransition } from "react";
+import Link from "next/link";
 import { Plus } from "lucide-react";
-import { useDictations } from "@/lib/db";
+import { useDictations, useDictationMutations } from "@/lib/db";
 import { ContentItem } from "@/components/content-item";
+import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { useSetHeader } from "@/components/layout/use-set-header";
 import { PageTransition } from "@/components/page-transition";
 
 export default function DicteeListPage() {
-  useSetHeader("Dictée", "/");
-  const { dictations, isLoading } = useDictations();
+  useSetHeader("Dictee", "/");
+  const { dictations, isLoading, refetch } = useDictations();
+  const { deleteDictation } = useDictationMutations();
+
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    await deleteDictation(deleteTarget.id);
+    setDeleteTarget(null);
+    refetch();
+  }
 
   return (
     <PageTransition>
@@ -21,9 +37,11 @@ export default function DicteeListPage() {
           </div>
         ) : dictations.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <span className="text-4xl" aria-hidden>📝</span>
+            <span className="text-4xl" aria-hidden>
+              📝
+            </span>
             <p className="text-muted-foreground">
-              Aucune dictée pour le moment.
+              Aucune dictee pour le moment.
             </p>
           </div>
         ) : (
@@ -34,21 +52,35 @@ export default function DicteeListPage() {
                   href={`/dictee/${dictation.id}`}
                   icon="📝"
                   title={dictation.title}
-                  meta={`${dictation.words.length} mot${dictation.words.length > 1 ? "s" : ""}`}
+                  meta={`${dictation.words.length} mot${dictation.words.length > 1 ? "s" : ""} — ${dictation.mode === "words" ? "Mots isoles" : "Texte complet"}`}
                   variant="primary"
+                  editHref={`/dictee/${dictation.id}/edit`}
+                  onDelete={() =>
+                    setDeleteTarget({
+                      id: dictation.id,
+                      title: dictation.title,
+                    })
+                  }
                 />
               </ViewTransition>
             ))}
           </div>
         )}
 
-        <Button className="w-full" disabled aria-disabled="true">
+        <Button className="w-full" render={<Link href="/dictee/new" transitionTypes={["nav-forward"]} />}>
           <Plus className="size-4" />
-          Ajouter une dictée
+          Ajouter une dictee
         </Button>
-        <p className="text-xs text-muted-foreground text-center">
-          Bientôt disponible
-        </p>
+
+        <DeleteDialog
+          open={deleteTarget !== null}
+          onOpenChange={(open) => {
+            if (!open) setDeleteTarget(null);
+          }}
+          title="Supprimer cette dictee ?"
+          itemName={deleteTarget?.title ?? ""}
+          onConfirm={handleDelete}
+        />
       </div>
     </PageTransition>
   );

@@ -2,6 +2,7 @@ export type {
   Module,
   Level,
   Word,
+  DictationMode,
   Dictation,
   Verse,
   Stanza,
@@ -29,4 +30,8 @@ export {
   useDictations,
   usePoems,
   useHasContent,
+  useDictation,
+  usePoem,
+  useDictationMutations,
+  usePoemMutations,
 } from "./hooks";

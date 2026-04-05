@@ -21,11 +21,15 @@ export interface Word {
   order: number;
 }
 
+export type DictationMode = "words" | "text";
+
 export interface Dictation {
   id: string;
   moduleId: string;
   title: string;
+  mode: DictationMode;
   words: Word[];
+  originalText?: string;
   createdAt: string; // ISO 8601
 }
 
