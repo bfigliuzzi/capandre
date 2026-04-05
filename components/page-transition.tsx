@@ -6,12 +6,12 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       enter={{
         "nav-forward": "nav-forward",
         "nav-back": "nav-back",
-        default: "fade-in",
+        default: "none",
       }}
       exit={{
         "nav-forward": "nav-forward",
         "nav-back": "nav-back",
-        default: "fade-out",
+        default: "none",
       }}
       default="none"
     >

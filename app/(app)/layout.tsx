@@ -20,8 +20,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   if (!isReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="size-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      <div className="flex items-center justify-center min-h-screen" role="status" aria-label="Chargement en cours">
+        <div className="size-8 rounded-full border-4 border-primary border-t-transparent animate-spin" aria-hidden="true" />
+        <span className="sr-only">Chargement en cours…</span>
       </div>
     );
   }

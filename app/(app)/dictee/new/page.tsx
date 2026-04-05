@@ -5,7 +5,7 @@ import { useSetHeader } from "@/components/layout/use-set-header";
 import { PageTransition } from "@/components/page-transition";
 
 export default function NewDictationPage() {
-  useSetHeader("Nouvelle dictee", "/dictee");
+  useSetHeader("Nouvelle dictée", "/dictee");
 
   return (
     <PageTransition>

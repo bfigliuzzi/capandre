@@ -90,17 +90,17 @@ export function PoemForm(props: PoemFormProps) {
   }
 
   function handleCancel() {
-    if (isDirty && !confirm("Vous avez des modifications non enregistrees. Quitter quand meme ?")) {
+    if (isDirty && !confirm("Vous avez des modifications non enregistrées. Quitter quand même ?")) {
       return;
     }
     router.push("/poesie");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Title */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="title" className="text-sm font-medium">
+      <div className="flex flex-col gap-3">
+        <label htmlFor="title" className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
           Titre
         </label>
         <Input
@@ -110,14 +110,14 @@ export function PoemForm(props: PoemFormProps) {
             setTitle(e.target.value);
             markDirty();
           }}
-          placeholder="Titre du poeme..."
+          placeholder="Titre du poème..."
         />
       </div>
 
       {/* Author */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="author" className="text-sm font-medium">
-          Auteur <span className="text-muted-foreground font-normal">(optionnel)</span>
+      <div className="flex flex-col gap-3">
+        <label htmlFor="author" className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
+          Auteur <span className="font-normal normal-case tracking-normal">(optionnel)</span>
         </label>
         <Input
           id="author"
@@ -131,9 +131,9 @@ export function PoemForm(props: PoemFormProps) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="content" className="text-sm font-medium">
-          Texte du poeme
+      <div className="flex flex-col gap-3">
+        <label htmlFor="content" className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
+          Texte du poème
         </label>
         <Textarea
           id="content"
@@ -142,25 +142,42 @@ export function PoemForm(props: PoemFormProps) {
             setContent(e.target.value);
             markDirty();
           }}
-          placeholder="Saisissez le poeme ici. Separez les strophes par une ligne vide..."
+          placeholder="Saisissez le poème ici. Séparez les strophes par une ligne vide..."
+          aria-invalid={!!error || undefined}
+          aria-describedby={[
+            "content-hint",
+            error ? "form-error" : undefined,
+          ].filter(Boolean).join(" ") || undefined}
           className="min-h-[16rem]"
         />
-        <p className="text-xs text-muted-foreground">
-          Separez les strophes par une ligne vide. Chaque ligne correspond a un vers.
+        <p id="content-hint" className="text-sm text-muted-foreground">
+          Séparez les strophes par une ligne vide. Chaque ligne correspond à un vers.
         </p>
       </div>
 
       {/* Preview */}
       {content.trim() && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Apercu</p>
-          <StanzaPreview stanzas={parsedStanzas} />
+        <div className="flex flex-col gap-3">
+          <div className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <span aria-hidden="true">👁️</span>
+            Aperçu des strophes
+          </div>
+          <div className="p-4 bg-muted/50 border border-border rounded-lg">
+            <StanzaPreview stanzas={parsedStanzas} />
+          </div>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <p className="text-sm text-destructive font-medium">{error}</p>
+        <div
+          id="form-error"
+          className="flex items-start gap-2.5 p-4 bg-destructive/10 border border-destructive rounded-lg text-sm text-destructive leading-normal"
+          role="alert"
+        >
+          <span className="shrink-0 text-lg leading-none" aria-hidden="true">❌</span>
+          <span>{error}</span>
+        </div>
       )}
 
       {/* Actions */}
@@ -169,7 +186,7 @@ export function PoemForm(props: PoemFormProps) {
           type="button"
           variant="ghost"
           onClick={handleCancel}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto sm:min-w-40"
         >
           Annuler
         </Button>
@@ -177,13 +194,13 @@ export function PoemForm(props: PoemFormProps) {
           type="submit"
           variant="secondary"
           disabled={isSubmitting}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto sm:min-w-40"
         >
           {isSubmitting
             ? "Enregistrement..."
             : isEdit
               ? "Enregistrer les modifications"
-              : "Enregistrer le poeme"}
+              : "Enregistrer le poème"}
         </Button>
       </div>
 

@@ -8,5 +8,6 @@ export function useSetHeader(title: string, backHref: string | null) {
 
   useEffect(() => {
     setHeader({ title, backHref });
+    document.title = title ? `${title} — Capandre` : "Capandre";
   }, [title, backHref, setHeader]);
 }

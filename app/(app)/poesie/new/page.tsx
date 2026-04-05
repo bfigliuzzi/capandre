@@ -5,7 +5,7 @@ import { useSetHeader } from "@/components/layout/use-set-header";
 import { PageTransition } from "@/components/page-transition";
 
 export default function NewPoemPage() {
-  useSetHeader("Nouveau poeme", "/poesie");
+  useSetHeader("Nouveau poème", "/poesie");
 
   return (
     <PageTransition>

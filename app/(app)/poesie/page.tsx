@@ -32,8 +32,9 @@ export default function PoesieListPage() {
     <PageTransition>
       <div className="flex flex-col gap-4">
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="size-6 rounded-full border-2 border-secondary border-t-transparent animate-spin" />
+          <div className="flex justify-center py-12" role="status" aria-label="Chargement en cours">
+            <div className="size-6 rounded-full border-2 border-secondary border-t-transparent animate-spin" aria-hidden="true" />
+            <span className="sr-only">Chargement en cours…</span>
           </div>
         ) : poems.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
@@ -41,7 +42,7 @@ export default function PoesieListPage() {
               📖
             </span>
             <p className="text-muted-foreground">
-              Aucun poeme pour le moment.
+              Aucun poème pour le moment.
             </p>
           </div>
         ) : (
@@ -70,7 +71,7 @@ export default function PoesieListPage() {
           render={<Link href="/poesie/new" transitionTypes={["nav-forward"]} />}
         >
           <Plus className="size-4" />
-          Ajouter un poeme
+          Ajouter un poème
         </Button>
 
         <DeleteDialog
@@ -78,7 +79,7 @@ export default function PoesieListPage() {
           onOpenChange={(open) => {
             if (!open) setDeleteTarget(null);
           }}
-          title="Supprimer ce poeme ?"
+          title="Supprimer ce poème ?"
           itemName={deleteTarget?.title ?? ""}
           onConfirm={handleDelete}
         />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ import {
   parseWords,
   parseFullText,
   findDuplicates,
+  stripArticle,
   generateTitle,
 } from "@/lib/parsing";
 import { cn } from "@/lib/utils";
@@ -28,12 +29,14 @@ export function DictationForm(props: DictationFormProps) {
 
   const isEdit = props.mode === "edit";
   const existing = isEdit ? props.dictation : null;
+  const modeRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const modeOptions = ["words", "text"] as const;
 
   const [dictationMode, setDictationMode] = useState<DictationMode>(
-    existing?.mode ?? "words"
+    existing?.mode ?? "words",
   );
   const [title, setTitle] = useState(
-    existing?.title ?? generateTitle("dictation")
+    existing?.title ?? generateTitle("dictation"),
   );
   const [content, setContent] = useState(() => {
     if (!existing) return "";
@@ -48,21 +51,43 @@ export function DictationForm(props: DictationFormProps) {
 
   const parsedWords = useMemo(
     () =>
-      dictationMode === "words"
-        ? parseWords(content)
-        : parseFullText(content),
-    [content, dictationMode]
+      dictationMode === "words" ? parseWords(content) : parseFullText(content),
+    [content, dictationMode],
   );
 
   const duplicates = useMemo(
-    () => (dictationMode === "words" ? findDuplicates(parsedWords) : new Set<string>()),
-    [parsedWords, dictationMode]
+    () =>
+      dictationMode === "words"
+        ? findDuplicates(parsedWords, stripArticle)
+        : new Set<string>(),
+    [parsedWords, dictationMode],
   );
 
   function markDirty() {
     setIsDirty(true);
     setError(null);
   }
+
+  const handleModeKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      if (isEdit) return;
+      let next = index;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        next = (index + 1) % modeOptions.length;
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        next = (index - 1 + modeOptions.length) % modeOptions.length;
+      }
+      if (next !== index) {
+        modeRefs.current[next]?.focus();
+        setDictationMode(modeOptions[next]);
+        markDirty();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isEdit],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,7 +96,7 @@ export function DictationForm(props: DictationFormProps) {
       setError(
         dictationMode === "words"
           ? "Veuillez saisir au moins un mot."
-          : "Veuillez saisir un texte."
+          : "Veuillez saisir un texte.",
       );
       return;
     }
@@ -106,28 +131,39 @@ export function DictationForm(props: DictationFormProps) {
   }
 
   function handleCancel() {
-    if (isDirty && !confirm("Vous avez des modifications non enregistrees. Quitter quand meme ?")) {
+    if (
+      isDirty &&
+      !confirm(
+        "Vous avez des modifications non enregistrées. Quitter quand même ?",
+      )
+    ) {
       return;
     }
     router.push("/dictee");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       {/* Mode toggle */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Type de dictee</label>
+      <div className="flex flex-col gap-3">
+        <label className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
+          Type de dictée
+        </label>
         <div
-          className="flex gap-2 rounded-xl bg-muted p-1"
+          className="flex gap-0 rounded-xl bg-muted p-1 border border-input"
           role="radiogroup"
-          aria-label="Type de dictee"
+          aria-label="Type de dictée"
         >
-          {(["words", "text"] as const).map((m) => (
+          {modeOptions.map((m, i) => (
             <button
               key={m}
+              ref={(el) => {
+                modeRefs.current[i] = el;
+              }}
               type="button"
               role="radio"
               aria-checked={dictationMode === m}
+              tabIndex={dictationMode === m ? 0 : -1}
               disabled={isEdit}
               onClick={() => {
                 if (!isEdit) {
@@ -135,28 +171,29 @@ export function DictationForm(props: DictationFormProps) {
                   markDirty();
                 }
               }}
+              onKeyDown={(e) => handleModeKeyDown(e, i)}
               className={cn(
-                "flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-[background-color,color,box-shadow] text-center focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
+                "flex-1 rounded-[calc(var(--radius)-0.25rem)] px-4 py-2.5 text-sm font-semibold transition-[background-color,color,box-shadow] text-center focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
                 dictationMode === m
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-                isEdit && "opacity-50 cursor-not-allowed"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-primary",
+                isEdit && "opacity-60 cursor-not-allowed",
               )}
             >
-              {m === "words" ? "Mots isoles" : "Texte complet"}
+              {m === "words" ? "Mots isolés" : "Texte complet"}
             </button>
           ))}
         </div>
         {isEdit && (
-          <p className="text-xs text-muted-foreground">
-            Le type ne peut pas etre modifie apres la creation.
+          <p className="text-sm text-muted-foreground">
+            Le type ne peut pas être modifié après la création.
           </p>
         )}
       </div>
 
       {/* Title */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="title" className="text-sm font-medium">
+      <div className="flex flex-col gap-3">
+        <label htmlFor="title" className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
           Titre
         </label>
         <Input
@@ -166,13 +203,13 @@ export function DictationForm(props: DictationFormProps) {
             setTitle(e.target.value);
             markDirty();
           }}
-          placeholder="Titre de la dictee..."
+          placeholder="Titre de la dictée..."
         />
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-2">
-        <label htmlFor="content" className="text-sm font-medium">
+      <div className="flex flex-col gap-3">
+        <label htmlFor="content" className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider">
           {dictationMode === "words" ? "Mots" : "Texte"}
         </label>
         <Textarea
@@ -184,29 +221,58 @@ export function DictationForm(props: DictationFormProps) {
           }}
           placeholder={
             dictationMode === "words"
-              ? "Saisissez les mots separes par des virgules, espaces ou retours a la ligne..."
-              : "Saisissez le texte complet de la dictee..."
+              ? "Saisissez les mots séparés par des virgules ou retours à la ligne...\n\nExemple : le coq, les oies, un caneton"
+              : "Saisissez le texte complet de la dictée..."
           }
-          className={dictationMode === "text" ? "min-h-[10rem]" : undefined}
+          aria-invalid={!!error || undefined}
+          aria-describedby={
+            [
+              dictationMode === "words" ? "content-hint" : undefined,
+              error ? "form-error" : undefined,
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+          className={dictationMode === "text" ? "min-h-[14rem]" : undefined}
         />
         {dictationMode === "words" && (
-          <p className="text-xs text-muted-foreground">
-            Separez les mots par des virgules, espaces ou retours a la ligne.
+          <p id="content-hint" className="text-sm text-muted-foreground">
+            Séparateurs acceptés : virgule ou retour à la ligne
           </p>
+        )}
+
+        {/* Duplicate warning */}
+        {dictationMode === "words" && duplicates.size > 0 && (
+          <div className="flex items-start gap-2.5 p-4 bg-[#FEF3C7] border border-[#F59E0B] rounded-lg text-sm text-[#92400E] leading-normal" role="status">
+            <span className="shrink-0 text-lg leading-none" aria-hidden="true">⚠️</span>
+            <span>Des mots en double ont été détectés (surlignage jaune).</span>
+          </div>
         )}
       </div>
 
       {/* Preview */}
       {content.trim() && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">Apercu</p>
-          <WordPreview words={parsedWords} duplicates={duplicates} />
+        <div className="flex flex-col gap-3">
+          <div className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <span aria-hidden="true">👁️</span>
+            Aperçu {dictationMode === "words" ? "des mots" : "du texte"}
+          </div>
+          <div className="p-4 bg-muted/50 border border-border rounded-lg">
+            <WordPreview words={parsedWords} duplicates={duplicates} />
+          </div>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <p className="text-sm text-destructive font-medium">{error}</p>
+        <div
+          id="form-error"
+          className="flex items-start gap-2.5 p-4 bg-destructive/10 border border-destructive rounded-lg text-sm text-destructive leading-normal"
+          role="alert"
+        >
+          <span className="shrink-0 text-lg leading-none" aria-hidden="true">❌</span>
+          <span>{error}</span>
+        </div>
       )}
 
       {/* Actions */}
@@ -215,20 +281,20 @@ export function DictationForm(props: DictationFormProps) {
           type="button"
           variant="ghost"
           onClick={handleCancel}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto sm:min-w-40"
         >
           Annuler
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto sm:min-w-40"
         >
           {isSubmitting
             ? "Enregistrement..."
             : isEdit
               ? "Enregistrer les modifications"
-              : "Enregistrer la dictee"}
+              : "Enregistrer la dictée"}
         </Button>
       </div>
 

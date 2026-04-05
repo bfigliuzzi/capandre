@@ -20,7 +20,7 @@ export default function HomePage() {
           <h1 className="font-heading text-3xl font-extrabold text-primary">
             Capandre
           </h1>
-          <p className="text-muted-foreground">Ta boîte à outils pour réviser</p>
+          <p className="text-lg text-muted-foreground">La boîte à outils pour réviser ses leçons</p>
         </div>
 
         <OnboardingMessage />

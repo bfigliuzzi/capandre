@@ -34,8 +34,8 @@ export function DeleteDialog({
           </div>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
-            <strong>{itemName}</strong> sera supprime definitivement. Cette
-            action est irreversible.
+            <strong>{itemName}</strong> sera supprimé définitivement. Cette
+            action est irréversible.
           </AlertDialogDescription>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end mt-2">

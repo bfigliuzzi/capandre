@@ -10,8 +10,8 @@ interface WordPreviewProps {
 export function WordPreview({ words, duplicates }: WordPreviewProps) {
   if (words.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground italic">
-        Les mots apparaitront ici au fur et a mesure de la saisie...
+      <p className="text-base text-muted-foreground italic">
+        Les mots apparaîtront ici au fur et à mesure de la saisie...
       </p>
     );
   }
@@ -31,11 +31,13 @@ export function WordPreview({ words, duplicates }: WordPreviewProps) {
                 : "bg-primary/10 text-primary border border-primary/20"
             )}
           >
+            {duplicates.has(word) && <span className="mr-1" aria-hidden="true">⚠</span>}
             {word}
+            {duplicates.has(word) && <span className="sr-only">(doublon)</span>}
           </span>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         {words.length} mot{words.length > 1 ? "s" : ""}
         {uniqueCount < words.length && ` (${uniqueCount} unique${uniqueCount > 1 ? "s" : ""})`}
       </p>

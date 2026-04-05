@@ -38,7 +38,7 @@ function DarkModeToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
+      className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-base text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
       aria-label={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
     >
       {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
@@ -57,7 +57,7 @@ export function AppSidebar() {
           <span className="font-heading text-lg font-extrabold text-primary">
             Capandre
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             Ta boîte à outils
           </span>
         </Link>
@@ -66,6 +66,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
+            <nav aria-label="Navigation principale">
             <SidebarMenu>
               {navItems.map((item) => {
                 const isActive =
@@ -87,6 +88,7 @@ export function AppSidebar() {
                 );
               })}
             </SidebarMenu>
+            </nav>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

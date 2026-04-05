@@ -12,14 +12,15 @@ export default function EditPoemPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  useSetHeader("Modifier le poeme", "/poesie");
+  useSetHeader("Modifier le poème", "/poesie");
 
   const { poem, isLoading } = usePoem(id);
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="size-6 rounded-full border-2 border-secondary border-t-transparent animate-spin" />
+      <div className="flex justify-center py-12" role="status" aria-label="Chargement en cours">
+        <div className="size-6 rounded-full border-2 border-secondary border-t-transparent animate-spin" aria-hidden="true" />
+        <span className="sr-only">Chargement en cours…</span>
       </div>
     );
   }
@@ -27,7 +28,7 @@ export default function EditPoemPage({
   if (!poem) {
     return (
       <div className="flex flex-col items-center gap-3 py-12 text-center">
-        <p className="text-muted-foreground">Poeme introuvable.</p>
+        <p className="text-muted-foreground">Poème introuvable.</p>
       </div>
     );
   }

@@ -7,8 +7,8 @@ interface StanzaPreviewProps {
 export function StanzaPreview({ stanzas }: StanzaPreviewProps) {
   if (stanzas.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground italic">
-        Les strophes apparaitront ici au fur et a mesure de la saisie...
+      <p className="text-base text-muted-foreground italic">
+        Les strophes apparaîtront ici au fur et à mesure de la saisie...
       </p>
     );
   }
@@ -19,15 +19,15 @@ export function StanzaPreview({ stanzas }: StanzaPreviewProps) {
     <div className="flex flex-col gap-3">
       {stanzas.map((stanza, i) => (
         <div key={i} className="border-l-3 border-secondary/50 pl-3">
-          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
+          <p className="text-sm font-semibold text-muted-foreground uppercase mb-1">
             Strophe {i + 1} ({stanza.verses.length} vers)
           </p>
           {stanza.verses.map((verse, j) => (
-            <p key={j} className="text-sm">{verse}</p>
+            <p key={j} className="text-base">{verse}</p>
           ))}
         </div>
       ))}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         {stanzas.length} strophe{stanzas.length > 1 ? "s" : ""}, {totalVerses} vers au total
       </p>
     </div>

@@ -13,7 +13,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <div id="main" className="flex-1 p-4 md:p-6 max-w-3xl mx-auto w-full">
+          <div id="main" tabIndex={-1} className="flex-1 px-6 py-6 md:px-8 md:py-8 max-w-[800px] mx-auto w-full outline-none">
             {children}
           </div>
         </SidebarInset>

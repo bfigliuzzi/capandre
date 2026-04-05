@@ -12,7 +12,7 @@ import { useSetHeader } from "@/components/layout/use-set-header";
 import { PageTransition } from "@/components/page-transition";
 
 export default function DicteeListPage() {
-  useSetHeader("Dictee", "/");
+  useSetHeader("Dictée", "/");
   const { dictations, isLoading, refetch } = useDictations();
   const { deleteDictation } = useDictationMutations();
 
@@ -32,8 +32,9 @@ export default function DicteeListPage() {
     <PageTransition>
       <div className="flex flex-col gap-4">
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="size-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <div className="flex justify-center py-12" role="status" aria-label="Chargement en cours">
+            <div className="size-6 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-hidden="true" />
+            <span className="sr-only">Chargement en cours…</span>
           </div>
         ) : dictations.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
@@ -41,7 +42,7 @@ export default function DicteeListPage() {
               📝
             </span>
             <p className="text-muted-foreground">
-              Aucune dictee pour le moment.
+              Aucune dictée pour le moment.
             </p>
           </div>
         ) : (
@@ -52,7 +53,7 @@ export default function DicteeListPage() {
                   href={`/dictee/${dictation.id}`}
                   icon="📝"
                   title={dictation.title}
-                  meta={`${dictation.words.length} mot${dictation.words.length > 1 ? "s" : ""} — ${dictation.mode === "words" ? "Mots isoles" : "Texte complet"}`}
+                  meta={`${dictation.words.length} mot${dictation.words.length > 1 ? "s" : ""} — ${dictation.mode === "words" ? "Mots isolés" : "Texte complet"}`}
                   variant="primary"
                   editHref={`/dictee/${dictation.id}/edit`}
                   onDelete={() =>
@@ -69,7 +70,7 @@ export default function DicteeListPage() {
 
         <Button className="w-full" render={<Link href="/dictee/new" transitionTypes={["nav-forward"]} />}>
           <Plus className="size-4" />
-          Ajouter une dictee
+          Ajouter une dictée
         </Button>
 
         <DeleteDialog
@@ -77,7 +78,7 @@ export default function DicteeListPage() {
           onOpenChange={(open) => {
             if (!open) setDeleteTarget(null);
           }}
-          title="Supprimer cette dictee ?"
+          title="Supprimer cette dictée ?"
           itemName={deleteTarget?.title ?? ""}
           onConfirm={handleDelete}
         />
