@@ -283,3 +283,284 @@
     animation-delay: 0s !important;
   }
 }
+
+/* ==========================================================================
+   Exercise — Dictée
+   ========================================================================== */
+
+/* --- Animations --- */
+
+@keyframes exercise-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tts-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.exercise-fade-in {
+  animation: exercise-fade-in 0.3s ease;
+}
+
+/* --- Letter Boxes --- */
+
+.letter-input {
+  width: 2.75rem;
+  height: 3.25rem;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: oklch(0.550 0.134 273.742);
+  background-color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.letter-input:focus {
+  border-color: oklch(0.550 0.134 273.742);
+  box-shadow: 0 0 0 3px oklch(0.708 0.077 276.648 / 30%);
+  background-color: var(--background);
+}
+
+.letter-given {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 3.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .letter-input,
+  .letter-given {
+    width: 3.25rem;
+    height: 3.75rem;
+    font-size: 1.875rem;
+  }
+}
+
+/* --- Word Dots --- */
+
+.word-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-color: var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.word-dot:hover {
+  transform: scale(1.3);
+}
+
+.word-dot--current {
+  background-color: oklch(0.550 0.134 273.742);
+  transform: scale(1.4);
+  border-color: oklch(0.550 0.134 273.742);
+}
+
+.word-dot--answered {
+  background-color: oklch(0.564 0.127 151.581);
+}
+
+.word-dot--skipped {
+  background-color: oklch(0.662 0.137 75.820);
+}
+
+/* --- TTS Button --- */
+
+.tts-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: oklch(0.550 0.134 273.742 / 10%);
+  color: oklch(0.550 0.134 273.742);
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tts-btn:hover {
+  background-color: oklch(0.550 0.134 273.742);
+  color: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.10);
+}
+
+.tts-btn--active {
+  background-color: oklch(0.550 0.134 273.742);
+  color: white;
+  animation: tts-pulse 0.6s ease infinite;
+}
+
+.tts-btn--cooldown {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* --- Progress Bar --- */
+
+.exercise-progress-bar {
+  height: 0.5rem;
+  background-color: var(--muted);
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.exercise-progress-fill {
+  height: 100%;
+  background-color: oklch(0.550 0.134 273.742);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* --- Difficulty Cards --- */
+
+.difficulty-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.difficulty-card:hover {
+  border-color: oklch(0.550 0.134 273.742 / 50%);
+}
+
+.difficulty-card:focus-visible {
+  outline: 3px solid oklch(0.708 0.077 276.648 / 50%);
+  outline-offset: 2px;
+}
+
+.difficulty-card--active {
+  border-color: oklch(0.550 0.134 273.742);
+  background-color: oklch(0.550 0.134 273.742 / 10%);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.10), 0 2px 4px -2px rgba(0, 0, 0, 0.10);
+}
+
+@media (min-width: 768px) {
+  .difficulty-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+  }
+}
+
+/* --- Correction: Score Gradients --- */
+
+.correction-score--perfect {
+  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+  border-color: oklch(0.564 0.127 151.581);
+}
+
+.correction-score--great {
+  background: linear-gradient(135deg, oklch(0.904 0.025 278.344), #DBEAFE);
+  border-color: oklch(0.550 0.134 273.742);
+}
+
+.correction-score--good {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  border-color: oklch(0.662 0.137 75.820);
+}
+
+.correction-score--keep-going {
+  background: linear-gradient(135deg, oklch(0.943 0.021 43.852), #FEE2E2);
+  border-color: oklch(0.680 0.155 42.368);
+}
+
+/* --- Correction: Letter Feedback --- */
+
+.correction-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 2rem;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.correction-letter--given {
+  color: var(--muted-foreground);
+  background-color: var(--muted);
+}
+
+.correction-letter--correct {
+  color: #065F46;
+  background-color: #D1FAE5;
+}
+
+.correction-letter--wrong {
+  color: #991B1B;
+  background-color: #FEE2E2;
+  gap: 0.125rem;
+  padding: 0 0.375rem;
+}
+
+.correction-letter-given {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.correction-letter-arrow {
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.correction-letter-expected {
+  font-weight: 800;
+}
+
+.dark .correction-letter--correct {
+  color: #6EE7B7;
+  background-color: #064E3B;
+}
+
+.dark .correction-letter--wrong {
+  color: #FCA5A5;
+  background-color: #7F1D1D;
+}
+
+/* --- Reduced motion for exercise --- */
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-fade-in,
+  .tts-btn--active {
+    animation: none !important;
+  }
+  .exercise-progress-fill {
+    transition: none !important;
+  }
+}
