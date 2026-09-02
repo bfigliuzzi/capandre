@@ -564,3 +564,162 @@
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   Tables de multiplication
+   ========================================================================== */
+
+/* --- Question : très gros chiffres sans débordement --- */
+.mult-question {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.5rem, 13vw, 4.5rem);   /* ≈ 40px → 72px */
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25em;
+}
+
+/* Emplacement de la réponse : largeur figée ⇒ l'équation ne « saute » pas
+   quand l'enfant tape ses chiffres. */
+.mult-answer-slot {
+  display: inline-block;
+  min-width: 3ch;
+  text-align: left;
+  color: var(--primary);
+}
+.mult-answer-slot--empty { color: var(--muted-foreground); }
+
+/* --- Flash « bonne réponse » --- */
+@keyframes mult-correct-flash {
+  0%   { background-color: var(--card); border-color: var(--border); }
+  25%  { background-color: color-mix(in oklab, var(--success) 18%, var(--card));
+         border-color: var(--success); }
+  100% { background-color: var(--card); border-color: var(--border); }
+}
+.mult-card--correct { animation: mult-correct-flash 700ms ease-out; }
+
+/* --- Minuteur : barre décroissante, virage de teinte calme --- */
+.mult-timer {
+  height: 0.625rem;
+  border-radius: 9999px;
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+@keyframes mult-timer-shrink { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes mult-timer-tint {
+  0%, 55% { background-color: var(--success); }
+  78%     { background-color: var(--warning); }
+  100%    { background-color: var(--chart-2); }   /* corail, jamais rouge */
+}
+.mult-timer-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  border-radius: 9999px;
+  animation:
+    mult-timer-shrink var(--mult-timer-duration, 7000ms) linear both,
+    mult-timer-tint   var(--mult-timer-duration, 7000ms) linear both;
+}
+.mult-timer-fill--paused { animation-play-state: paused; }
+
+/* --- Étoiles --- */
+@keyframes mult-star-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.mult-star-pop {
+  animation: mult-star-pop 420ms cubic-bezier(0.2, 0.8, 0.3, 1) var(--mult-star-delay, 0ms) both;
+}
+
+/* --- Série en cours --- */
+@keyframes mult-streak-pop {
+  0%   { transform: scale(0.85); }
+  50%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.mult-streak-pop { animation: mult-streak-pop 320ms ease-out; }
+
+/* --- Confettis --- */
+@keyframes mult-confetti-fall {
+  0%   { transform: translate3d(0, -12vh, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--confetti-x, 0), 108vh, 0)
+                   rotate(var(--confetti-rot, 540deg)); opacity: 0.85; }
+}
+.mult-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 40;               /* au-dessus du header (10), sous les modales (50) */
+  overflow: hidden;
+  pointer-events: none;
+}
+.mult-confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 0.5rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  animation: mult-confetti-fall var(--confetti-duration, 2200ms)
+             cubic-bezier(0.3, 0.6, 0.5, 1) var(--confetti-delay, 0ms) both;
+}
+
+/* --- Score de fin de session (compatible dark mode, contrairement à
+       .correction-score--* qui utilise des dégradés hex clairs) --- */
+.session-score {
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 1rem;
+}
+.session-score--perfect {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--success) 20%, var(--card)),
+    color-mix(in oklab, var(--success) 8%, var(--card)));
+  border-color: color-mix(in oklab, var(--success) 45%, transparent);
+}
+.session-score--great {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 20%, var(--card)),
+    color-mix(in oklab, var(--info) 10%, var(--card)));
+  border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+}
+.session-score--good {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--warning) 22%, var(--card)),
+    color-mix(in oklab, var(--warning) 8%, var(--card)));
+  border-color: color-mix(in oklab, var(--warning) 45%, transparent);
+}
+.session-score--keep-going {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--chart-2) 20%, var(--card)),
+    color-mix(in oklab, var(--secondary) 40%, var(--card)));
+  border-color: color-mix(in oklab, var(--chart-2) 45%, transparent);
+}
+
+/* --- Révision : alignement des lignes --- */
+.mult-revision-line {
+  display: grid;
+  grid-template-columns: 2.5ch 1.5ch 2.5ch 1.5ch minmax(3.5ch, auto);
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 6vw, 2rem);      /* ≥ 24px, jamais < 16px */
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .mult-card--correct,
+  .mult-streak-pop { animation: none !important; }
+  .mult-star-pop { animation-duration: 1ms !important; animation-delay: 0ms !important; }
+  .mult-confetti { display: none !important; }
+  /* La barre porte de l'information : on ne la fige pas, on la rend
+     discrète en 12 paliers au lieu d'un mouvement continu. */
+  .mult-timer-fill { animation-timing-function: steps(12, end) !important; }
+}

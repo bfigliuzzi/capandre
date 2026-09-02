@@ -9,7 +9,7 @@ interface ModuleCardProps {
   icon: string;
   title: string;
   description: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "tertiary";
 }
 
 export function ModuleCard({ href, icon, title, description, variant = "primary" }: ModuleCardProps) {
@@ -19,15 +19,17 @@ export function ModuleCard({ href, icon, title, description, variant = "primary"
       transitionTypes={["nav-forward"]}
       className={cn(
         "flex items-center gap-5 rounded-xl border-2 border-border p-5 shadow-sm transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
-        variant === "primary"
-          ? "hover:border-primary/50"
-          : "hover:border-secondary/50"
+        variant === "primary" && "hover:border-primary/50",
+        variant === "secondary" && "hover:border-secondary/50",
+        variant === "tertiary" && "hover:border-info/50"
       )}
     >
       <div
         className={cn(
           "flex items-center justify-center size-16 rounded-xl text-[2rem] shrink-0",
-          variant === "primary" ? "bg-primary/10" : "bg-secondary/10"
+          variant === "primary" && "bg-primary/10",
+          variant === "secondary" && "bg-secondary/10",
+          variant === "tertiary" && "bg-info/10"
         )}
         aria-hidden
       >

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Capandre — boîte à outils numérique offline-first pour les enfants d'école élémentaire en France (dictées, poésies, futur : tables de multiplication, conjugaison, grammaire).
+Capandre — boîte à outils numérique offline-first pour les enfants d'école élémentaire en France (dictées, poésies, tables de multiplication, futur : conjugaison, grammaire).
 
 ## Language
 
@@ -19,6 +19,7 @@ pnpm build        # Production build
 pnpm lint         # ESLint
 pnpm exec vitest run              # Run all tests
 pnpm exec vitest run lib/__tests__/parsing.test.ts  # Single test file
+pnpm exec vitest run lib/multiplication/__tests__/session.test.ts  # Multiplication engine tests
 pnpm exec vitest --watch          # Watch mode
 npx tsc --noEmit                  # Type check
 ```
@@ -37,6 +38,7 @@ app/(app)/layout.tsx        # App layout (client — DB init, AppShell)
 app/(app)/page.tsx          # Home
 app/(app)/dictee/            # Dictée module (list, new, [id], [id]/edit, [id]/correction)
 app/(app)/poesie/            # Poésie module (list, new, [id], [id]/edit)
+app/(app)/tables/            # Tables de multiplication module (list, revision, exercice, exercice/session, trophees)
 ```
 
 All page components are `"use client"` — they use `useSetHeader()` to configure the header title and back link.
@@ -46,18 +48,41 @@ All page components are `"use client"` — they use `useSetHeader()` to configur
 - `components/ui/` — Base UI / shadcn primitives (Button, Input, Textarea, Sidebar, Sheet, AlertDialog…)
 - `components/layout/` — App shell (AppShell, AppHeader, AppSidebar, HeaderContext)
 - `components/` — Domain components (DictationForm, PoemForm, ContentItem, DifficultySelector, WordPreview, StanzaPreview…)
+- `components/tables/` — Tables de multiplication module (TablesHome, RevisionView, TablesSetup, MultiplicationSession, BadgeGrid, SessionSummary…)
+- `hooks/` — Shared hooks (use-countdown, use-document-visibility, use-reduced-motion, use-roving-tabindex, use-sound…)
 
 ### Database (IndexedDB via `idb`)
 
 ```text
-lib/db/schema.ts      # Types: Module, Level, Dictation, Poem, Word, Verse, Stanza
-lib/db/database.ts    # getDB() singleton, versioned migrations (v3)
+lib/db/schema.ts      # Types: Module, Level, Dictation, Poem, Word, Verse, Stanza, MultiplicationDifficulty, MultiplicationFactProgress, MultiplicationSessionRecord, UnlockedBadge, AppSettings
+lib/db/database.ts    # getDB() singleton, versioned migrations (v4)
 lib/db/operations.ts  # CRUD: getAll, getAllByIndex, getById, create, update, remove
 lib/db/hooks.ts       # React hooks: useDictations, usePoems, useDictation, usePoem, useDictationMutations, usePoemMutations, useHasContent
-lib/db/seed.ts        # Initial data seeding
+lib/db/seed.ts        # Initial data seeding (idempotent per record)
+lib/db/multiplication-operations.ts  # getFactProgress, getRecentSessions, getUnlockedBadges, getSettings/putSettings, recordSession (single transaction)
+lib/db/multiplication-hooks.ts  # useMultiplicationProgress, useMultiplicationSessions, useUnlockedBadges, useSettings, useMultiplicationMutations
 ```
 
-Stores: `modules`, `levels`, `dictations`, `poems`. All indexed by `by-module`.
+Stores: `modules`, `levels`, `dictations`, `poems`, `multiplicationFacts` (index `by-table`), `multiplicationSessions` (indexes `by-date`, `by-difficulty`), `multiplicationBadges`, `settings`. All indexed by `by-module` where applicable.
+
+### Multiplication engine (`lib/multiplication/`)
+
+Pure logic layer (no React, no IndexedDB). **Imports use relative paths only** (no `@/` alias) because vitest.config is not present.
+
+```text
+lib/multiplication/types.ts              # SessionConfig, Question, SessionState, SessionSummary, AnswerOutcome
+lib/multiplication/constants.ts          # TABLES, DIFFICULTIES, TIME_LIMITS_MS, MISSING_FACTOR_SHARE, STAR_MEAN_THRESHOLDS
+lib/multiplication/facts.ts              # factKey, buildFacts, buildTable, formatFact, factsForTable
+lib/multiplication/random.ts             # shuffleWithRng, pickWeightedIndex, randomInt
+lib/multiplication/progress.ts           # factWeight, updateProgress, computeTableStars, computeAllTableStars
+lib/multiplication/messages.ts           # CORRECT_MESSAGES, STREAK_MESSAGES, SUMMARY_MESSAGES, pickMessage, streakMessage (no negative words)
+lib/multiplication/session.ts           # generateSession, answerQuestion, scheduleRetry, computeSummary, toSessionRecord
+lib/multiplication/session-ui.ts        # SessionUiState, SessionAction, sessionUiReducer, mapKeyToAction (keyboard input handling)
+lib/multiplication/config-params.ts     # parseSessionConfig, encodeSessionConfig (URL param serialization)
+lib/multiplication/badges.ts            # BadgeDefinition, BADGES (14 badges, never revoked), getBadge, evaluateBadges
+lib/multiplication/index.ts              # Barrel exports
+lib/multiplication/__tests__/            # vitest describe/it in French, relative imports, test-rng.ts helper
+```
 
 ### Parsing (`lib/parsing.ts`)
 

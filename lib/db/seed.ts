@@ -4,7 +4,16 @@ import type { CapandreDB, Module, Level } from "./schema";
 const MODULES: Module[] = [
   { id: "mod-dictation", name: "Dictée", type: "dictation" },
   { id: "mod-poem", name: "Poésie", type: "poem" },
+  {
+    id: "mod-multiplication",
+    name: "Tables de multiplication",
+    type: "multiplication",
+  },
 ];
+
+// Aucun Level pour mod-multiplication : la difficulté d'une session
+// (De base / Cadencé / Défi) est un paramètre de session, pas un contenu
+// créé par le parent.
 
 const LEVELS: Level[] = [
   {
@@ -45,22 +54,31 @@ const LEVELS: Level[] = [
   },
 ];
 
+/**
+ * Seed idempotent ENREGISTREMENT PAR ENREGISTREMENT.
+ *
+ * Un early-return sur `count("modules") > 0` empêcherait tout nouveau module
+ * d'apparaître sur les installations existantes, quelle que soit la version de
+ * la base. Ici chaque module et chaque niveau manquant est créé, sans jamais
+ * écraser un enregistrement déjà présent.
+ */
 export async function seedDatabase(db: IDBPDatabase<CapandreDB>): Promise<void> {
-  const existingModules = await db.count("modules");
-  if (existingModules > 0) {
-    return;
-  }
-
   const tx = db.transaction(["modules", "levels"], "readwrite");
 
   const modulesStore = tx.objectStore("modules");
   for (const mod of MODULES) {
-    await modulesStore.put(mod);
+    const existing = await modulesStore.get(mod.id);
+    if (!existing) {
+      await modulesStore.put(mod);
+    }
   }
 
   const levelsStore = tx.objectStore("levels");
   for (const level of LEVELS) {
-    await levelsStore.put(level);
+    const existing = await levelsStore.get(level.id);
+    if (!existing) {
+      await levelsStore.put(level);
+    }
   }
 
   await tx.done;

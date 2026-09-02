@@ -40,6 +40,13 @@ export default function HomePage() {
             description="Apprends ta poésie par cœur, les mots disparaissent progressivement"
             variant="secondary"
           />
+          <ModuleCard
+            href="/tables"
+            icon="🔢"
+            title="Tables de multiplication"
+            description="Révise tes tables, gagne des étoiles et débloque des trophées !"
+            variant="tertiary"
+          />
         </div>
       </div>
     </PageTransition>

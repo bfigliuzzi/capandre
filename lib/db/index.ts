@@ -1,5 +1,6 @@
 export type {
   Module,
+  ModuleType,
   Level,
   Word,
   DictationMode,
@@ -7,6 +8,14 @@ export type {
   Verse,
   Stanza,
   Poem,
+  MultiplicationFactKey,
+  MultiplicationDifficulty,
+  MultiplicationSessionLength,
+  MultiplicationSessionConfig,
+  MultiplicationFactProgress,
+  MultiplicationSessionRecord,
+  UnlockedBadge,
+  AppSettings,
   CapandreDB,
 } from "./schema";
 
@@ -35,3 +44,21 @@ export {
   useDictationMutations,
   usePoemMutations,
 } from "./hooks";
+
+export {
+  getFactProgress,
+  getRecentSessions,
+  getUnlockedBadges,
+  getSettings,
+  putSettings,
+  recordSession,
+} from "./multiplication-operations";
+export type { RecordSessionResult } from "./multiplication-operations";
+
+export {
+  useMultiplicationProgress,
+  useMultiplicationSessions,
+  useUnlockedBadges,
+  useMultiplicationMutations,
+  useSettings,
+} from "./multiplication-hooks";

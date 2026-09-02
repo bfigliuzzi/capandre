@@ -4,7 +4,7 @@ import type { CapandreDB } from "./schema";
 import { seedDatabase } from "./seed";
 
 const DB_NAME = "capandre";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 let dbPromise: Promise<IDBPDatabase<CapandreDB>> | null = null;
 
@@ -48,6 +48,39 @@ export function getDB(): Promise<IDBPDatabase<CapandreDB>> {
             }
             cursor.continue().then(migrate);
           });
+        }
+
+        // v3 → v4 : stores du module Tables de multiplication.
+        // Migration purement additive : aucun enregistrement existant n'est
+        // relu ni réécrit, les dictées et poésies sont donc intactes.
+        // Les `contains` défensifs évitent un ConstraintError si une v4
+        // partielle a déjà existé sur l'appareil.
+        if (oldVersion < 4) {
+          const storeNames = db.objectStoreNames as unknown as DOMStringList;
+
+          if (!storeNames.contains("multiplicationFacts")) {
+            const factsStore = db.createObjectStore("multiplicationFacts", {
+              keyPath: "id",
+            });
+            factsStore.createIndex("by-table", "a");
+          }
+
+          if (!storeNames.contains("multiplicationSessions")) {
+            const sessionsStore = db.createObjectStore(
+              "multiplicationSessions",
+              { keyPath: "id" },
+            );
+            sessionsStore.createIndex("by-date", "completedAt");
+            sessionsStore.createIndex("by-difficulty", "difficulty");
+          }
+
+          if (!storeNames.contains("multiplicationBadges")) {
+            db.createObjectStore("multiplicationBadges", { keyPath: "id" });
+          }
+
+          if (!storeNames.contains("settings")) {
+            db.createObjectStore("settings", { keyPath: "id" });
+          }
         }
       },
     }).then(async (db) => {

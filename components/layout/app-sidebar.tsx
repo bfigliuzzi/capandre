@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PenLine, BookOpen, Moon, Sun } from "lucide-react";
+import { Home, PenLine, BookOpen, Calculator, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const navItems = [
   { label: "Accueil", href: "/", icon: Home },
   { label: "Dictée", href: "/dictee", icon: PenLine },
   { label: "Poésie", href: "/poesie", icon: BookOpen },
+  { label: "Tables", href: "/tables", icon: Calculator },
 ] as const;
 
 function DarkModeToggle() {
