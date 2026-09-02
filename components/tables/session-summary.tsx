@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BadgeTile } from "@/components/tables/badge-tile";
 import { Confetti } from "@/components/tables/confetti";
 import { FactList } from "@/components/tables/fact-list";
-import { StarRating } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/tables/star-rating";
 import type { RecordSessionResult } from "@/lib/db";
 import { getBadge, type SessionConfig, type SessionSummary as Summary } from "@/lib/multiplication";
 import { cn } from "@/lib/utils";
@@ -180,7 +180,7 @@ export function SessionSummary({
                     value={value}
                     size="sm"
                     animated
-                    label={`Table de ${table} : ${value} ${value === 1 ? "étoile" : "étoiles"} sur 3`}
+                    label={`Table de ${table} : ${starsLabel(value)}`}
                   />
                 </span>
               </li>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { StarRating } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/tables/star-rating";
 import { cn } from "@/lib/utils";
 
 interface TableStarsTileProps {
@@ -23,7 +23,7 @@ export function TableStarsTile({ tableId, stars, href }: TableStarsTileProps) {
       <span className="font-heading text-2xl font-bold text-foreground" aria-hidden="true">
         {tableId}
       </span>
-      <StarRating value={stars} size="sm" label={`Table de ${tableId} : ${stars} étoile${stars > 1 ? "s" : ""} sur 3`} />
+      <StarRating value={stars} size="sm" label={`Table de ${tableId} : ${starsLabel(stars)}`} />
     </Link>
   );
 }

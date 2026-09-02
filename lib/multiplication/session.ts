@@ -253,8 +253,11 @@ export function scheduleRetry(
 
   const key = factKey(question.fact.a, question.fact.b);
   const product = question.fact.a * question.fact.b;
+  // L'id ne peut pas dépendre de `queue.length` : la voie d'écrasement ne
+  // fait pas grandir la file. Le nombre de reprises, lui, est monotone
+  // (l'écrasement ne remplace jamais une reprise existante).
   const retry: Question = {
-    id: `r${queue.length}`,
+    id: `r${queue.filter((q) => q.isRetry).length + 1}`,
     fact: question.fact,
     kind: "product",
     product,
@@ -283,12 +286,21 @@ export function scheduleRetry(
     return next;
   }
 
-  // Plafond atteint : on écrase un créneau non encore posé.
+  // Plafond atteint : on écrase un créneau non encore posé, strictement
+  // après la question courante, sans recréer de voisinage — les voisins
+  // RÉELS une fois le remplacement fait sont p-1 et p+1 (queue[p] lui-même
+  // est vérifié par prudence, bien que sa valeur actuelle disparaisse).
   const from = Math.max(placement, currentIndex + 1);
   for (let p = from; p < queue.length; p++) {
     const candidate = queue[p];
     if (candidate.isRetry) continue;
-    if (keyOf(candidate) === key) continue;
+    if (
+      keyOf(queue[p - 1]) === key ||
+      keyOf(candidate) === key ||
+      keyOf(queue[p + 1]) === key
+    ) {
+      continue;
+    }
     const next = [...queue];
     next[p] = retry;
     return next;

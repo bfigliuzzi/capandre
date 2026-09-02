@@ -15,8 +15,18 @@ function getAudioContext(): AudioContext | null {
   const Ctor: AudioContextConstructor | undefined =
     window.AudioContext ?? (window as unknown as { webkitAudioContext?: AudioContextConstructor }).webkitAudioContext;
   if (!Ctor) return null;
-  if (!sharedContext) sharedContext = new Ctor();
-  if (sharedContext.state === "suspended") void sharedContext.resume();
+  if (!sharedContext) {
+    try {
+      sharedContext = new Ctor();
+    } catch {
+      // Certains navigateurs refusent la création (quota, contexte bloqué…).
+      return null;
+    }
+  }
+  if (sharedContext.state === "suspended") {
+    // Sur WebKit, resume() peut être rejeté hors geste utilisateur.
+    void sharedContext.resume().catch(() => {});
+  }
   return sharedContext;
 }
 

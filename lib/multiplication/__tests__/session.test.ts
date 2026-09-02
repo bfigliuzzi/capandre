@@ -21,7 +21,7 @@ import type {
   SessionLength,
   SessionState,
 } from "../types";
-import { freeze, seededRng } from "./test-rng";
+import { constantRng, freeze, seededRng } from "./test-rng";
 
 const NOW = Date.UTC(2026, 0, 15, 10, 0, 0);
 
@@ -642,6 +642,88 @@ describe("scheduleRetry", () => {
       maxQuestions: state.queue.length,
     });
     expect(next).toEqual([...state.queue]);
+  });
+
+  it("en écrasement, ne recrée jamais de voisinage même quand le créneau naïvement choisi est suivi du fait repris", () => {
+    // File saturée (queue.length === maxQuestions). Avec gap=3 (rng figé à
+    // 0), le créneau naïf est l'index 3 : son contenu n'est pas `key`, mais
+    // son VOISIN DE DROITE (index 4) l'est. Sans le contrôle sur p+1, on
+    // écraserait l'index 3 et on recréerait deux `key` consécutifs (3 et 4).
+    const key = { a: 6, b: 7 };
+    const mk = (i: number, fact: { a: number; b: number }): Question => ({
+      id: `q${i}`,
+      fact,
+      kind: "product",
+      product: fact.a * fact.b,
+      answer: fact.a * fact.b,
+      isRetry: false,
+      retryOf: null,
+      retryDepth: 0,
+    });
+    const queue: Question[] = [
+      mk(0, key),
+      mk(1, { a: 2, b: 3 }),
+      mk(2, { a: 3, b: 4 }),
+      mk(3, { a: 4, b: 5 }),
+      mk(4, key),
+      mk(5, { a: 5, b: 6 }),
+      mk(6, { a: 8, b: 2 }),
+      mk(7, { a: 8, b: 3 }),
+      mk(8, { a: 8, b: 4 }),
+      mk(9, { a: 8, b: 5 }),
+    ];
+
+    const next = scheduleRetry(queue, 0, queue[0], {
+      rng: constantRng(0),
+      maxQuestions: queue.length,
+    });
+
+    expect(next).toHaveLength(queue.length);
+    for (let i = 1; i < next.length; i++) {
+      expect(factKey(next[i].fact.a, next[i].fact.b)).not.toBe(
+        factKey(next[i - 1].fact.a, next[i - 1].fact.b),
+      );
+    }
+  });
+
+  it("en écrasements successifs sur une file saturée, tous les id de questions restent uniques", () => {
+    const mk = (i: number, fact: { a: number; b: number }): Question => ({
+      id: `q${i}`,
+      fact,
+      kind: "product",
+      product: fact.a * fact.b,
+      answer: fact.a * fact.b,
+      isRetry: false,
+      retryOf: null,
+      retryDepth: 0,
+    });
+    const queue: Question[] = [
+      mk(0, { a: 1, b: 2 }),
+      mk(1, { a: 1, b: 3 }),
+      mk(2, { a: 1, b: 4 }),
+      mk(3, { a: 1, b: 5 }),
+      mk(4, { a: 1, b: 6 }),
+      mk(5, { a: 1, b: 7 }),
+      mk(6, { a: 1, b: 8 }),
+      mk(7, { a: 1, b: 9 }),
+      mk(8, { a: 1, b: 10 }),
+      mk(9, { a: 2, b: 3 }),
+    ];
+
+    const afterFirst = scheduleRetry(queue, 0, queue[0], {
+      rng: constantRng(0),
+      maxQuestions: queue.length,
+    });
+    expect(afterFirst).toHaveLength(queue.length);
+
+    const afterSecond = scheduleRetry(afterFirst, 1, afterFirst[1], {
+      rng: constantRng(0),
+      maxQuestions: queue.length,
+    });
+    expect(afterSecond).toHaveLength(queue.length);
+
+    expect(afterSecond.filter((q) => q.isRetry)).toHaveLength(2);
+    expect(new Set(afterSecond.map((q) => q.id)).size).toBe(afterSecond.length);
   });
 });
 

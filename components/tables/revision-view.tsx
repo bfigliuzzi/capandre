@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StarRating } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/tables/star-rating";
 import { RevisionTable } from "@/components/tables/revision-table";
 import { TablesLoader } from "@/components/tables/tables-loader";
 import { useRovingTabindex } from "@/hooks/use-roving-tabindex";
@@ -51,7 +51,7 @@ export function RevisionView() {
           La table de {tableId}
         </h2>
         {!isLoading && (
-          <StarRating value={tableStars} label={`Table de ${tableId} : ${tableStars} étoile${tableStars > 1 ? "s" : ""} sur 3`} />
+          <StarRating value={tableStars} label={`Table de ${tableId} : ${starsLabel(tableStars)}`} />
         )}
       </div>
 
@@ -61,8 +61,12 @@ export function RevisionView() {
           variant="outline"
           size="icon-lg"
           aria-label="Table précédente"
-          disabled={tableId <= 1}
-          onClick={() => goToTable(tableId - 1)}
+          aria-disabled={tableId <= 1}
+          className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          onClick={() => {
+            if (tableId <= 1) return;
+            goToTable(tableId - 1);
+          }}
         >
           <ChevronLeft className="size-5" aria-hidden="true" />
         </Button>
@@ -97,8 +101,12 @@ export function RevisionView() {
           variant="outline"
           size="icon-lg"
           aria-label="Table suivante"
-          disabled={tableId >= 10}
-          onClick={() => goToTable(tableId + 1)}
+          aria-disabled={tableId >= 10}
+          className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          onClick={() => {
+            if (tableId >= 10) return;
+            goToTable(tableId + 1);
+          }}
         >
           <ChevronRight className="size-5" aria-hidden="true" />
         </Button>

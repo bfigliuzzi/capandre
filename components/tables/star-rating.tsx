@@ -20,6 +20,14 @@ const SIZE_CLASSES: Record<NonNullable<StarRatingProps["size"]>, string> = {
   lg: "size-8",
 };
 
+/**
+ * "2 étoiles sur 3". Règle française : 0 ET 1 restent au singulier
+ * (« 0 étoile », pas « 0 étoiles »), seul le pluriel à partir de 2 prend un s.
+ */
+export function starsLabel(count: number, max = 3): string {
+  return `${count} étoile${count > 1 ? "s" : ""} sur ${max}`;
+}
+
 /** Étoiles de maîtrise par table. Pleines/vides + role="img" — jamais couleur seule. */
 export function StarRating({ value, max = 3, size = "md", animated = false, label }: StarRatingProps) {
   const sizeClass = SIZE_CLASSES[size];

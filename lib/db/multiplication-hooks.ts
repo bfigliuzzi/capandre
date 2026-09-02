@@ -4,7 +4,7 @@
 // Fichier séparé de `hooks.ts` (déjà volumineux) ; mêmes patterns :
 // useReducer pour les listes, useState pour l'enregistrement unique,
 // useCallback pour les mutations, garde `cancelled` dans chaque effet.
-import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   getFactProgress,
   getRecentSessions,
@@ -53,6 +53,11 @@ function progressReducer(state: ProgressState, action: ProgressAction): Progress
 export function useMultiplicationProgress(): UseMultiplicationProgressResult {
   const [state, dispatch] = useReducer(progressReducer, { progress: [], isLoading: true });
   const [fetchKey, setFetchKey] = useState(0);
+  // `isLoading` ne doit être vrai que pour le chargement INITIAL : ce ref
+  // (jamais écrit pendant le rendu) mémorise si un premier chargement a déjà
+  // abouti, pour que les `refetch` suivants ne remettent pas l'UI en état de
+  // chargement (l'appelant ne doit plus contourner ça avec un état maison).
+  const hasLoadedRef = useRef(false);
 
   const refetch = useCallback(() => {
     setFetchKey((k) => k + 1);
@@ -60,13 +65,17 @@ export function useMultiplicationProgress(): UseMultiplicationProgressResult {
 
   useEffect(() => {
     let cancelled = false;
-    dispatch({ type: "fetch" });
+    if (!hasLoadedRef.current) dispatch({ type: "fetch" });
     getFactProgress()
       .then((data) => {
-        if (!cancelled) dispatch({ type: "success", data });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "success", data });
       })
       .catch(() => {
-        if (!cancelled) dispatch({ type: "error" });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "error" });
       });
     return () => {
       cancelled = true;
@@ -106,6 +115,8 @@ function sessionsReducer(state: SessionsState, action: SessionsAction): Sessions
 export function useMultiplicationSessions(limit = 20): UseMultiplicationSessionsResult {
   const [state, dispatch] = useReducer(sessionsReducer, { sessions: [], isLoading: true });
   const [fetchKey, setFetchKey] = useState(0);
+  // Cf. useMultiplicationProgress : isLoading réservé au chargement initial.
+  const hasLoadedRef = useRef(false);
 
   const refetch = useCallback(() => {
     setFetchKey((k) => k + 1);
@@ -113,13 +124,17 @@ export function useMultiplicationSessions(limit = 20): UseMultiplicationSessions
 
   useEffect(() => {
     let cancelled = false;
-    dispatch({ type: "fetch" });
+    if (!hasLoadedRef.current) dispatch({ type: "fetch" });
     getRecentSessions(limit)
       .then((data) => {
-        if (!cancelled) dispatch({ type: "success", data });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "success", data });
       })
       .catch(() => {
-        if (!cancelled) dispatch({ type: "error" });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "error" });
       });
     return () => {
       cancelled = true;
@@ -159,6 +174,8 @@ function badgesReducer(state: BadgesState, action: BadgesAction): BadgesState {
 export function useUnlockedBadges(): UseUnlockedBadgesResult {
   const [state, dispatch] = useReducer(badgesReducer, { unlocked: [], isLoading: true });
   const [fetchKey, setFetchKey] = useState(0);
+  // Cf. useMultiplicationProgress : isLoading réservé au chargement initial.
+  const hasLoadedRef = useRef(false);
 
   const refetch = useCallback(() => {
     setFetchKey((k) => k + 1);
@@ -166,13 +183,17 @@ export function useUnlockedBadges(): UseUnlockedBadgesResult {
 
   useEffect(() => {
     let cancelled = false;
-    dispatch({ type: "fetch" });
+    if (!hasLoadedRef.current) dispatch({ type: "fetch" });
     getUnlockedBadges()
       .then((data) => {
-        if (!cancelled) dispatch({ type: "success", data });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "success", data });
       })
       .catch(() => {
-        if (!cancelled) dispatch({ type: "error" });
+        if (cancelled) return;
+        hasLoadedRef.current = true;
+        dispatch({ type: "error" });
       });
     return () => {
       cancelled = true;

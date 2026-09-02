@@ -145,10 +145,12 @@ export function MultiplicationSession({
     progressRef.current = progress;
   }, [progress]);
 
-  // Focus posé UNE SEULE FOIS au montage (le pavé ne remonte jamais ensuite).
+  // Focus reposé à chaque nouvelle partie (state.runId change au « Rejouer ») :
+  // la branche summary est démontée puis remplacée par le pavé, qui doit
+  // redevenir la cible du focus au lieu de le laisser retomber sur body.
   useEffect(() => {
     rootRef.current?.focus({ preventScroll: true });
-  }, []);
+  }, [state.runId]);
 
   // --- Question affichée ---
   // Pendant le feedback, `engine.index` pointe déjà sur la question suivante :
