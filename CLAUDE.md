@@ -8,7 +8,7 @@ Capandre — boîte à outils numérique offline-first pour les enfants d'école
 
 ## Language
 
-All generated content (specs, documentation, reports, mockups) MUST be written in **French**.
+All generated content (documentation, reports) MUST be written in **French**.
 Technical terms, variable names, code, file paths, and architectural pattern names remain in English.
 
 ## Commands
@@ -117,10 +117,6 @@ Tailwind 4 with `@theme inline` in `app/globals.css`. Colors use oklch. Dark mod
 - `document.title` updated on navigation
 - All AT-facing text in French
 
-## Documentation
-
-See README.md for the documentation index.
-
 ## Reference
 
 - Mission: `docs/mission.md`
@@ -128,6 +124,7 @@ See README.md for the documentation index.
 - Domain model: `docs/domain-model.md`
 - Roadmap: `docs/roadmap.md`
 - Backlog: `docs/backlog.md`
-- Conventions: `docs/conventions.md`
+- Development conventions: `docs/conventions.md`
+- Design tokens: `docs/design-tokens.md`
 
 @AGENTS.md
