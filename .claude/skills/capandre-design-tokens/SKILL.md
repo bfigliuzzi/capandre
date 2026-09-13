@@ -27,7 +27,7 @@ la classe `.dark`). Spécification lisible : `docs/design-tokens.md`, `docs/desi
 
 Ces règles sont **bloquantes** : `.claude/hooks/garde-conventions.mjs` refuse une écriture
 qui introduit un `text-xs`, un emoji ou une couleur littérale dans `app/`, `components/`,
-`hooks/` ou `lib/`. Le codebase les respecte intégralement depuis `intent/DETTE-01-conventions/`.
+`hooks/` ou `lib/`. Le codebase les respecte intégralement depuis `intent/DONE-DETTE-01-conventions/`.
 
 Une exception réellement justifiée — une valeur qui sort du pipeline CSS, comme les metadata
 `theme-color` — se marque sur le paragraphe concerné :

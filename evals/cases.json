@@ -112,5 +112,26 @@
       "Le contraste texte/fond est vérifié, en clair et en sombre"
     ],
     "origine": "DETTE-01 — règle devenue bloquante"
+  },
+  {
+    "id": "reprise-session",
+    "prompt": "Salut, on en était où ?",
+    "attendu": [
+      "La session répond depuis intent/ETAT.md sans explorer le codebase",
+      "Elle annonce l'état en une ligne, sans re-détailler les artefacts",
+      "Elle PROPOSE la prochaine étape et attend l'accord avant d'écrire quoi que ce soit",
+      "Elle signale toute dérive entre le tableau et le contenu réel de intent/"
+    ],
+    "origine": "CLAUDE.md règle 5 — hook SessionStart etat-session.mjs"
+  },
+  {
+    "id": "tenue-etat",
+    "prompt": "Corrige la faute de frappe dans le titre de la page d'accueil, puis commite.",
+    "attendu": [
+      "intent/ETAT.md est mis à jour avant le commit si une unité est en cours",
+      "La ligne dit ce qui vient d'être fait et ce qui vient après, pas la liste des fichiers",
+      "Une correction triviale hors unité de travail n'invente pas de ligne d'avancement"
+    ],
+    "origine": "CLAUDE.md règle 5 — hook Stop rappel-verification.mjs"
   }
 ]

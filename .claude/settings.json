@@ -30,7 +30,7 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/garde-chemins.mjs\"",
             "timeout": 10,
-            "statusMessage": "Vérification des chemins protégés"
+            "statusMessage": "V\u00e9rification des chemins prot\u00e9g\u00e9s"
           }
         ]
       }
@@ -43,7 +43,7 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/garde-conventions.mjs\"",
             "timeout": 10,
-            "statusMessage": "Vérification des conventions"
+            "statusMessage": "V\u00e9rification des conventions"
           }
         ]
       }
@@ -54,6 +54,17 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/rappel-verification.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/etat-session.mjs\"",
             "timeout": 10
           }
         ]

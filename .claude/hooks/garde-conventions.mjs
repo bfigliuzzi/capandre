@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // PostToolUse (Edit|Write) — applique les conventions mécaniquement vérifiables
 // au fichier qui vient d'être écrit. Toutes les règles sont BLOQUANTES : le
-// codebase les respecte intégralement (voir intent/DETTE-01-conventions/).
+// codebase les respecte intégralement (voir intent/DONE-DETTE-01-conventions/).
 //
 // Les règles elles-mêmes sont écrites dans CLAUDE.md et dans les skills
 // capandre-* ; ce hook les rend déterministes.

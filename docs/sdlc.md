@@ -105,6 +105,23 @@ Un scan récurrent du codebase (sécurité, dépendances, dette) valide ses cons
 les rapporter, avec un niveau de confiance. Un petit correctif part en PR ; un constat large
 redevient un `intent.md` et repart à l'étape 1. L'historique des scans est la trace d'audit.
 
+## Reprendre entre deux sessions
+
+Une session Claude ne se souvient de rien ; le dépôt, si. `intent/ETAT.md` porte donc
+l'état d'avancement — une ligne par unité de travail, la dernière action menée.
+
+Le hook `SessionStart` (`.claude/hooks/etat-session.mjs`) l'injecte dans le contexte
+d'ouverture et signale les dérives entre le tableau et le contenu réel de `intent/`.
+C'est le même partage que partout ailleurs : `CLAUDE.md` énonce la règle, le hook fait
+qu'elle tienne.
+
+Le hook informe ; il ne décide pas. Reprendre le travail reste une proposition que
+l'humain accepte — sinon une session pourrait se remettre à écrire du code sans que
+personne l'ait demandé, ce que tout le reste du cycle cherche à empêcher.
+
+Le hook `Stop` rappelle la mise à jour quand du travail a eu lieu sans que `ETAT.md` ait
+été touché : un état non tenu vaut moins qu'un état absent, parce qu'il ment.
+
 ## Arborescence du workflow
 
 ```text
@@ -113,9 +130,11 @@ REVIEW.md                     Passes de revue, sévérités, ce qu'on ne rapport
 docs/sdlc.md                  Ce document
 docs/architecture.md          Architecture détaillée
 intent/
+  ETAT.md                     Index d'avancement, lu à l'ouverture de session
   _templates/                 Modèles intent.md, spec.md, plan.md
-  <id>-<slug>/                Un dossier par unité de travail
+  <id>-<slug>/                Un dossier par unité de travail en cours
     intent.md  spec.md  plan.md
+  DONE-<id>-<slug>/           Unité terminée
 .claude/
   settings.json               Permissions et hooks
   hooks/                      Scripts de garde-fous déterministes

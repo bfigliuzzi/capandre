@@ -11,8 +11,8 @@ qui n'est pas encore tenue — et c'est une anomalie à résorber, pas un état 
 
 | Règle | Résorbée par | Statut |
 |---|---|---|
-| Pas d'emoji dans l'interface | `intent/DETTE-01-conventions/` | **bloquante** |
-| Pas de couleur en dur | `intent/DETTE-01-conventions/` | **bloquante** |
+| Pas d'emoji dans l'interface | `intent/DONE-DETTE-01-conventions/` | **bloquante** |
+| Pas de couleur en dur | `intent/DONE-DETTE-01-conventions/` | **bloquante** |
 | Pas de `text-xs` | jamais violée | **bloquante** |
 
 DETTE-01 a remplacé 35 emoji répartis dans 17 fichiers par des icônes `lucide-react`,
@@ -31,7 +31,7 @@ avait manquées parce que l'exemption portait sur le fichier entier. Au passage 
   figées : lettres saisies de l'exercice de dictée **2,88 → 5,49:1**, libellé du bouton
   « écouter » **3,15 → 6,65:1**. Et une en mode clair : « Niveau : … » sur le dégradé de
   score, **3,63 → 12,37:1**.
-- Tous les couples mesurés sont tabulés dans `intent/DETTE-01-conventions/plan.md`
+- Tous les couples mesurés sont tabulés dans `intent/DONE-DETTE-01-conventions/plan.md`
   § Preuve. Une fourchette globale n'est pas une preuve vérifiable : c'est une règle
   désormais inscrite dans `intent/_templates/plan.md`.
 
