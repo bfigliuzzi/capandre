@@ -145,12 +145,15 @@ bloquante, mais chacune se contourne de la même façon : **le projet fait autor
 
 | Skill | Suppose | Chez nous |
 |---|---|---|
-| `domain-modeling`, `tdd`, `improve-codebase-architecture` | un `CONTEXT.md` et des ADR dans `docs/adr/` | `docs/domain-model.md` et `docs/architecture.md` |
+| `domain-modeling`, `tdd`, `improve-codebase-architecture` | un `CONTEXT.md` et des ADR dans `docs/adr/` | `docs/architecture.md`, et le vocabulaire du code lui-même |
 | `to-*`, `code-review` (retirées) | un issue tracker configuré | `intent/` et `REVIEW.md` |
 | `setup-ts-deep-modules` (retirée) | un monorepo `src/packages/` | une app unique |
 
-Quand une skill demande un `CONTEXT.md` absent, lui donner `docs/domain-model.md` et
-`docs/architecture.md` — ne pas créer un second glossaire.
+Quand une skill demande un `CONTEXT.md` absent, lui donner `docs/architecture.md`.
+Le projet n'a **pas** de glossaire de domaine : `docs/domain-model.md` décrivait le MVP et
+ignorait le module Tables, livré depuis ; il a été supprimé plutôt que maintenu à moitié.
+Si un glossaire redevient nécessaire, le produire avec `/grill-with-docs` — pas le
+réécrire à la main pour qu'il dérive à nouveau.
 
 ### Ce qui a été écarté, et pourquoi
 
