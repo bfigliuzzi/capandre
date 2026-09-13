@@ -1,130 +1,83 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Projet
 
-## Project
+Capandre — boîte à outils numérique offline-first pour les enfants d'école élémentaire
+en France (dictées, poésies, tables de multiplication ; à venir : conjugaison, grammaire).
 
-Capandre — boîte à outils numérique offline-first pour les enfants d'école élémentaire en France (dictées, poésies, tables de multiplication, futur : conjugaison, grammaire).
+## Règles non négociables
 
-## Language
+1. **Ce n'est PAS le Next.js que tu connais.** Next.js 16 a des breaking changes par rapport
+   aux données d'entraînement. Lis le guide concerné dans `node_modules/next/dist/docs/`
+   avant d'écrire du code Next. Tiens compte des avis de dépréciation.
+2. **Tout le contenu généré (docs, rapports, commentaires de revue) est en français.**
+   Les termes techniques, noms de variables, chemins et noms de patterns restent en anglais.
+3. **Aucun code n'est écrit sans `plan.md` approuvé** — voir `docs/sdlc.md`.
+4. **La boucle de vérification passe avant tout push** : `pnpm verify`.
 
-All generated content (documentation, reports) MUST be written in **French**.
-Technical terms, variable names, code, file paths, and architectural pattern names remain in English.
-
-## Commands
+## Commandes
 
 ```bash
-pnpm dev          # Dev server (WATCHPACK_POLLING=true)
-pnpm build        # Production build
-pnpm lint         # ESLint
-pnpm exec vitest run              # Run all tests
-pnpm exec vitest run lib/__tests__/parsing.test.ts  # Single test file
-pnpm exec vitest run lib/multiplication/__tests__/session.test.ts  # Multiplication engine tests
-pnpm exec vitest --watch          # Watch mode
-npx tsc --noEmit                  # Type check
+pnpm dev            # Serveur de développement (WATCHPACK_POLLING=true)
+pnpm build          # Build de production
+pnpm lint           # ESLint
+pnpm typecheck      # tsc --noEmit (strict, pas de any)
+pnpm test           # Vitest, une passe
+pnpm test:watch     # Vitest en watch
+pnpm verify         # lint + typecheck + test + build — la boucle de feedback
+pnpm exec vitest run lib/multiplication/__tests__/session.test.ts   # Un seul fichier
 ```
 
-## Architecture
+## Cycle de développement
 
-**Next.js 16** App Router with React 19, TypeScript, Tailwind CSS 4, Base UI + shadcn (base-nova style).
+`intent.md` → `spec.md` → `plan.md` → code → `pnpm verify` → revue (`REVIEW.md`) → merge.
+Détail complet : `docs/sdlc.md`. Modèles : `intent/_templates/`.
+L'agent écrit, l'humain approuve — jamais le même acteur pour les deux.
 
-**WARNING:** Next.js 16 has breaking changes vs training data. Read `node_modules/next/dist/docs/` before writing new Next.js code. Heed deprecation notices.
+## Architecture (résumé)
 
-### Routing
+Next.js 16 App Router, React 19, TypeScript, Tailwind 4, Base UI + shadcn (base-nova),
+persistance IndexedDB via `idb`.
 
-```text
-app/layout.tsx              # Root layout (lang="fr", fonts, skip link)
-app/(app)/layout.tsx        # App layout (client — DB init, AppShell)
-app/(app)/page.tsx          # Home
-app/(app)/dictee/            # Dictée module (list, new, [id], [id]/edit, [id]/correction)
-app/(app)/poesie/            # Poésie module (list, new, [id], [id]/edit)
-app/(app)/tables/            # Tables de multiplication module (list, revision, exercice, exercice/session, trophees)
-```
+- `app/(app)/` — routes, toutes `"use client"`, configurées via `useSetHeader()`
+- `components/ui/` primitives · `components/layout/` shell · `components/` domaine
+- `lib/` logique métier pure · `lib/db/` persistance · `hooks/` hooks partagés
+- **Sens des dépendances** : `app`/`components` → `lib` → `lib/db`.
+  La logique métier ne dépend ni de React ni d'IndexedDB.
+- **Injection** : RNG, horloge et base sont passés en paramètre, jamais importés en dur
+  dans la logique métier.
 
-All page components are `"use client"` — they use `useSetHeader()` to configure the header title and back link.
+Détail complet : `docs/architecture.md`.
 
-### Component Layers
+## Conventions de code
 
-- `components/ui/` — Base UI / shadcn primitives (Button, Input, Textarea, Sidebar, Sheet, AlertDialog…)
-- `components/layout/` — App shell (AppShell, AppHeader, AppSidebar, HeaderContext)
-- `components/` — Domain components (DictationForm, PoemForm, ContentItem, DifficultySelector, WordPreview, StanzaPreview…)
-- `components/tables/` — Tables de multiplication module (TablesHome, RevisionView, TablesSetup, MultiplicationSession, BadgeGrid, SessionSummary…)
-- `hooks/` — Shared hooks (use-countdown, use-document-visibility, use-reduced-motion, use-roving-tabindex, use-sound…)
+- Fonctions < 30 lignes, une responsabilité, early returns (3 niveaux d'imbrication max).
+- Immutabilité par défaut (`const`, `readonly`), fonctions pures dès que possible.
+- Types explicites sur les API publiques. Pas d'état global ni d'effet de bord caché.
+- Pas de code commenté : l'historique git suffit.
+- Texte de base 16px (`text-base`), annotations 14px (`text-sm`). **Jamais `text-xs`.**
+- Labels de formulaire : `font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider`.
+- **Pas d'emoji dans l'interface** : toujours `lucide-react`.
+- Couleurs, typo et radius via les tokens de `app/globals.css`. Pas de valeur en dur.
+- Accessibilité WCAG AA : HTML sémantique, `aria-invalid` + `aria-describedby` + `role="alert"`
+  sur les erreurs, roving tabindex sur les radiogroups, `role="status"` sur les zones dynamiques,
+  `document.title` mis à jour à la navigation, textes AT en français.
+- Tests : `__tests__/[nom].test.ts` à côté de la source, `describe`/`it` en français,
+  80 % de couverture sur la logique métier, suite complète sous 30 s.
 
-### Database (IndexedDB via `idb`)
+## Erreurs déjà commises (ne pas recommencer)
 
-```text
-lib/db/schema.ts      # Types: Module, Level, Dictation, Poem, Word, Verse, Stanza, MultiplicationDifficulty, MultiplicationFactProgress, MultiplicationSessionRecord, UnlockedBadge, AppSettings
-lib/db/database.ts    # getDB() singleton, versioned migrations (v4)
-lib/db/operations.ts  # CRUD: getAll, getAllByIndex, getById, create, update, remove
-lib/db/hooks.ts       # React hooks: useDictations, usePoems, useDictation, usePoem, useDictationMutations, usePoemMutations, useHasContent
-lib/db/seed.ts        # Initial data seeding (idempotent per record)
-lib/db/multiplication-operations.ts  # getFactProgress, getRecentSessions, getUnlockedBadges, getSettings/putSettings, recordSession (single transaction)
-lib/db/multiplication-hooks.ts  # useMultiplicationProgress, useMultiplicationSessions, useUnlockedBadges, useSettings, useMultiplicationMutations
-```
+> Règle de tenue : quand Claude fait deux fois la même erreur, la correction arrive ici.
 
-Stores: `modules`, `levels`, `dictations`, `poems`, `multiplicationFacts` (index `by-table`), `multiplicationSessions` (indexes `by-date`, `by-difficulty`), `multiplicationBadges`, `settings`. All indexed by `by-module` where applicable.
+- Écrire du code Next.js de mémoire au lieu de lire `node_modules/next/dist/docs/`.
+- Utiliser `text-xs` — interdit partout, un hook le bloque.
+- Mettre un emoji dans un composant au lieu d'une icône `lucide-react`.
+- Découper les mots de dictée par espaces : `parseWords` découpe par **virgule ou retour
+  ligne uniquement** (« le coq, les oies » → `["le coq", "les oies"]`).
+- Importer React ou `lib/db` depuis `lib/multiplication/` : ce moteur est du TypeScript pur.
 
-### Multiplication engine (`lib/multiplication/`)
+## Garde-fous automatiques
 
-Pure logic layer (no React, no IndexedDB). **Imports use relative paths only** (no `@/` alias) because vitest.config is not present.
-
-```text
-lib/multiplication/types.ts              # SessionConfig, Question, SessionState, SessionSummary, AnswerOutcome
-lib/multiplication/constants.ts          # TABLES, DIFFICULTIES, TIME_LIMITS_MS, MISSING_FACTOR_SHARE, STAR_MEAN_THRESHOLDS
-lib/multiplication/facts.ts              # factKey, buildFacts, buildTable, formatFact, factsForTable
-lib/multiplication/random.ts             # shuffleWithRng, pickWeightedIndex, randomInt
-lib/multiplication/progress.ts           # factWeight, updateProgress, computeTableStars, computeAllTableStars
-lib/multiplication/messages.ts           # CORRECT_MESSAGES, STREAK_MESSAGES, SUMMARY_MESSAGES, pickMessage, streakMessage (no negative words)
-lib/multiplication/session.ts           # generateSession, answerQuestion, scheduleRetry, computeSummary, toSessionRecord
-lib/multiplication/session-ui.ts        # SessionUiState, SessionAction, sessionUiReducer, mapKeyToAction (keyboard input handling)
-lib/multiplication/config-params.ts     # parseSessionConfig, encodeSessionConfig (URL param serialization)
-lib/multiplication/badges.ts            # BadgeDefinition, BADGES (14 badges, never revoked), getBadge, evaluateBadges
-lib/multiplication/index.ts              # Barrel exports
-lib/multiplication/__tests__/            # vitest describe/it in French, relative imports, test-rng.ts helper
-```
-
-### Parsing (`lib/parsing.ts`)
-
-- `parseWords(text)` — splits by **comma/newline only** (not spaces), lowercases. "le coq, les oies" → `["le coq", "les oies"]`
-- `stripArticle(entry)` — removes French articles (le, la, l', les, un, une, des, du, de la, de l') for duplicate comparison
-- `findDuplicates(words, normalize?)` — detects duplicates with optional normalizer, marks **all** occurrences
-- `parseFullText(text)` — splits by French punctuation/spaces (for dictée "text" mode)
-- `parseStanzas(text)` — splits poems into stanzas by double newline
-
-### View Transitions
-
-Enabled via `next.config.ts` (`experimental.viewTransition`). CSS recipes in `app/globals.css`. `<PageTransition>` wraps page content — directional slides for hierarchical nav (`transitionTypes={["nav-forward"]}`), no animation for lateral nav.
-
-## Styling
-
-Tailwind 4 with `@theme inline` in `app/globals.css`. Colors use oklch. Dark mode via `.dark` class. Design tokens spec: `docs/design-tokens.css`.
-
-**Typography rules:**
-
-- Base text: 16px (`text-base`)
-- Annotations/hints/meta only: 14px (`text-sm`)
-- No `text-xs` anywhere in the codebase
-
-**Form labels** use: `font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider`
-
-## Accessibility (WCAG AA)
-
-- All text ≥ 14px, body text ≥ 16px
-- `aria-invalid` + `aria-describedby` + `role="alert"` on form errors
-- Roving tabindex on radiogroups
-- `role="status"` on spinners and dynamic banners
-- `document.title` updated on navigation
-- All AT-facing text in French
-
-## Reference
-
-- Mission: `docs/mission.md`
-- Tech stack: `docs/tech-stack.md`
-- Domain model: `docs/domain-model.md`
-- Roadmap: `docs/roadmap.md`
-- Backlog: `docs/backlog.md`
-- Development conventions: `docs/conventions.md`
-- Design tokens: `docs/design-tokens.md`
-
-@AGENTS.md
+`.claude/settings.json` branche des hooks déterministes (`.claude/hooks/`) : chemins protégés,
+conventions typographiques, rappel de vérification. Un hook qui bloque explique pourquoi.
+Les skills `capandre-*` de `.claude/skills/` portent les politiques (a11y, tokens, logique métier).
