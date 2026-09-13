@@ -130,7 +130,7 @@ Deux origines, deux statuts :
 
 Une skill tierce n'est gardée que si **(1)** elle fait quelque chose que le cycle du projet
 ne fait pas déjà, et **(2)** elle n'écrit pas dans la configuration du projet. C'est à cette
-règle qu'on a élagué de 44 à 13 : tout ce qui doublonnait `intent/` → `spec` → `plan`, ou
+règle qu'on a élagué de 44 à 21 : tout ce qui doublonnait `intent/` → `spec` → `plan`, ou
 voulait réécrire `.claude/settings.json`, est sorti.
 
 **Avant de retirer une skill, lire son `SKILL.md`.** Certaines sont des composites de
@@ -138,8 +138,29 @@ quelques lignes qui en appellent d'autres : `grill-with-docs` appelle `grilling`
 `domain-modeling`. Retirer une dépendance casse le composite en silence — la description
 seule ne le dit pas.
 
-`domain-modeling` écrit un `CONTEXT.md` et des ADR. Le projet a déjà `docs/domain-model.md` :
-tant que les deux coexistent, dire lequel fait foi dans la spec de l'unité concernée.
+### Frictions connues
+
+Trois skills tierces supposent des conventions que le projet n'a pas. Aucune n'est
+bloquante, mais chacune se contourne de la même façon : **le projet fait autorité**.
+
+| Skill | Suppose | Chez nous |
+|---|---|---|
+| `domain-modeling`, `tdd`, `improve-codebase-architecture` | un `CONTEXT.md` et des ADR dans `docs/adr/` | `docs/domain-model.md` et `docs/architecture.md` |
+| `to-*`, `code-review` (retirées) | un issue tracker configuré | `intent/` et `REVIEW.md` |
+| `setup-ts-deep-modules` (retirée) | un monorepo `src/packages/` | une app unique |
+
+Quand une skill demande un `CONTEXT.md` absent, lui donner `docs/domain-model.md` et
+`docs/architecture.md` — ne pas créer un second glossaire.
+
+### Ce qui a été écarté, et pourquoi
+
+Le chaînage `to-spec` → `to-tickets` → `implement-spec` est un cycle SDLC complet et
+fonctionnel, y compris sans issue tracker (il retombe sur un tracker markdown local). Il
+apporte une chose que notre cycle n'a pas : des subagents implémenteurs en parallèle sur un
+graphe de tickets, chacun dans son worktree. Il est écarté quand même, parce qu'il remplace
+`intent/spec/plan` par son propre format : deux formats concurrents, et `intent/ETAT.md`
+cesse de dire la vérité. **Un seul cycle.** Si le parallélisme devient nécessaire, il
+s'ajoute à `plan.md`, il ne se sous-traite pas à un second cycle.
 
 ```bash
 npx skills@latest experimental_install   # restaurer l'état exact du lock
