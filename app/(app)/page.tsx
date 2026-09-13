@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen, Calculator, NotebookPen } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModuleCard } from "@/components/module-card";
 import { OnboardingMessage } from "@/components/onboarding-message";
@@ -28,21 +29,21 @@ export default function HomePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <ModuleCard
             href="/dictee"
-            icon="📝"
+            icon={NotebookPen}
             title="Dictée"
             description="Révise tes mots de dictée avec 3 niveaux de difficulté"
             variant="primary"
           />
           <ModuleCard
             href="/poesie"
-            icon="📖"
+            icon={BookOpen}
             title="Poésie"
             description="Apprends ta poésie par cœur, les mots disparaissent progressivement"
             variant="secondary"
           />
           <ModuleCard
             href="/tables"
-            icon="🔢"
+            icon={Calculator}
             title="Tables de multiplication"
             description="Révise tes tables, gagne des étoiles et débloque des trophées !"
             variant="tertiary"

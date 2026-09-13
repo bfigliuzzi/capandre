@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StarRating, starsLabel } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/star-rating";
 import { RevisionTable } from "@/components/tables/revision-table";
 import { TablesLoader } from "@/components/tables/tables-loader";
 import { useRovingTabindex } from "@/hooks/use-roving-tabindex";

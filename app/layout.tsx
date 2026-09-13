@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "La boîte à outils pour réviser ses leçons",
   manifest: "/manifest.json",
   other: {
+    // couleur-en-dur: metadata theme-color, lue par le navigateur pour la barre
+    // système — part dans une balise <meta>, hors CSS, donc hors tokens.
     "theme-color-light": "#ffffff",
     "theme-color-dark": "#1e1e2e",
   },

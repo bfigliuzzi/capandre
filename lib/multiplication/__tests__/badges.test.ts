@@ -72,11 +72,11 @@ describe("catalogue", () => {
     expect(new Set(BADGES.map((b) => b.id)).size).toBe(BADGES.length);
   });
 
-  it("expose un titre, une description et un emoji non vides", () => {
+  it("expose un titre, une description et un nom d'icône non vides", () => {
     for (const badge of BADGES) {
       expect(badge.title.length, badge.id).toBeGreaterThan(0);
       expect(badge.description.length, badge.id).toBeGreaterThan(0);
-      expect(badge.emoji.length, badge.id).toBeGreaterThan(0);
+      expect(badge.icon.length, badge.id).toBeGreaterThan(0);
     }
   });
 

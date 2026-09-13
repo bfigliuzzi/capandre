@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { CircleX, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -159,7 +160,7 @@ export function PoemForm(props: PoemFormProps) {
       {content.trim() && (
         <div className="flex flex-col gap-3">
           <div className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <span aria-hidden="true">👁️</span>
+            <Eye className="size-4" strokeWidth={2} aria-hidden="true" />
             Aperçu des strophes
           </div>
           <div className="p-4 bg-muted/50 border border-border rounded-lg">
@@ -175,7 +176,7 @@ export function PoemForm(props: PoemFormProps) {
           className="flex items-start gap-2.5 p-4 bg-destructive/10 border border-destructive rounded-lg text-sm text-destructive leading-normal"
           role="alert"
         >
-          <span className="shrink-0 text-lg leading-none" aria-hidden="true">❌</span>
+          <CircleX className="shrink-0 size-5" strokeWidth={2} aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

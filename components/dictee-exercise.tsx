@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronRight, Volume2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, NotebookPen, TriangleAlert, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { StarRating, starsLabel } from "@/components/star-rating";
 import { useTTS } from "@/hooks/use-tts";
 import {
   extractArticle,
@@ -33,10 +34,11 @@ interface DicteeExerciseProps {
 
 type Phase = "select" | "exercise";
 
-const LEVELS: { id: ExerciseLevel; label: string; stars: string; desc: string }[] = [
-  { id: "discovery", label: "Découverte", stars: "⭐", desc: "Quelques lettres cachées (1/3)" },
-  { id: "learning", label: "Apprentissage", stars: "⭐⭐", desc: "Beaucoup de lettres cachées (3/4)" },
-  { id: "mastery", label: "Maîtrise", stars: "⭐⭐⭐", desc: "Toutes les lettres cachées" },
+// `stars` est un compte, pas un libellé : le rendu en dérive.
+const LEVELS: { id: ExerciseLevel; label: string; stars: number; desc: string }[] = [
+  { id: "discovery", label: "Découverte", stars: 1, desc: "Quelques lettres cachées (1/3)" },
+  { id: "learning", label: "Apprentissage", stars: 2, desc: "Beaucoup de lettres cachées (3/4)" },
+  { id: "mastery", label: "Maîtrise", stars: 3, desc: "Toutes les lettres cachées" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -277,17 +279,17 @@ export function DicteeExercise({ dictation }: DicteeExerciseProps) {
         {/* TTS Warning */}
         {!ttsAvailable && (
           <div
-            className="flex items-start gap-2.5 p-4 bg-[#FEF3C7] border border-[#F59E0B] rounded-xl text-sm text-[#92400E] leading-normal"
+            className="callout-warning flex items-start gap-2.5 p-4 border rounded-xl text-sm leading-normal"
             role="alert"
           >
-            <span className="shrink-0 text-lg leading-none" aria-hidden="true">⚠️</span>
+            <TriangleAlert className="shrink-0 size-5" strokeWidth={2} aria-hidden="true" />
             <span>La synthèse vocale n&apos;est pas disponible sur ce navigateur. Un adulte peut dicter les mots à voix haute.</span>
           </div>
         )}
 
         {/* Intro */}
         <div className="text-center py-4">
-          <div className="text-5xl mb-3" aria-hidden="true">📝</div>
+          <NotebookPen className="size-12 mb-3 mx-auto text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
           <h2 className="font-heading text-2xl font-extrabold">{dictation.title}</h2>
           <p className="text-base text-muted-foreground mt-1">
             {dictation.words.length}&nbsp;mot{dictation.words.length > 1 ? "s" : ""} en mode mots isolés
@@ -319,7 +321,10 @@ export function DicteeExercise({ dictation }: DicteeExerciseProps) {
                 level === l.id && "difficulty-card--active",
               )}
             >
-              <div className="text-2xl shrink-0 w-12 text-center" aria-hidden="true">{l.stars}</div>
+              {/* aria-hidden : le nom du radio vient du libellé et de la description. */}
+              <div className="flex shrink-0 items-center justify-center" aria-hidden="true">
+                <StarRating value={l.stars} size="sm" label={starsLabel(l.stars)} />
+              </div>
               <div className="flex-1">
                 <div className="font-heading font-bold text-base">{l.label}</div>
                 <div className="text-sm text-muted-foreground">{l.desc}</div>
@@ -344,10 +349,10 @@ export function DicteeExercise({ dictation }: DicteeExerciseProps) {
       {/* TTS Warning */}
       {!ttsAvailable && (
         <div
-          className="flex items-start gap-2.5 p-4 bg-[#FEF3C7] border border-[#F59E0B] rounded-xl text-sm text-[#92400E] leading-normal"
+          className="callout-warning flex items-start gap-2.5 p-4 border rounded-xl text-sm leading-normal"
           role="alert"
         >
-          <span className="shrink-0 text-lg leading-none" aria-hidden="true">⚠️</span>
+          <TriangleAlert className="shrink-0 size-5" strokeWidth={2} aria-hidden="true" />
           <span>La synthèse vocale n&apos;est pas disponible. Un adulte peut dicter les mots.</span>
         </div>
       )}
@@ -505,7 +510,7 @@ export function DicteeExercise({ dictation }: DicteeExerciseProps) {
       <AlertDialog open={quitModalOpen} onOpenChange={setQuitModalOpen}>
         <AlertDialogContent>
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="text-4xl" aria-hidden="true">⚠️</div>
+            <TriangleAlert className="size-10 mx-auto" strokeWidth={1.75} aria-hidden="true" />
             <AlertDialogTitle>Quitter l&apos;exercice ?</AlertDialogTitle>
             <AlertDialogDescription>
               Ta progression sera perdue. Tu devras recommencer depuis le début.

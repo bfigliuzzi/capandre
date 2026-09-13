@@ -33,12 +33,13 @@ L'application est disponible sur http://localhost:3000.
 ## Commandes
 
 ```bash
-pnpm dev                 # Serveur de développement
-pnpm build               # Build de production
-pnpm lint                # ESLint
-pnpm exec vitest run     # Tests unitaires
-pnpm exec vitest --watch # Tests en mode watch
-npx tsc --noEmit         # Vérification des types
+pnpm dev          # Serveur de développement
+pnpm build        # Build de production
+pnpm lint         # ESLint
+pnpm typecheck    # Vérification des types
+pnpm test         # Tests unitaires
+pnpm test:watch   # Tests en mode watch
+pnpm verify       # lint + typecheck + test + build — à lancer avant tout push
 ```
 
 ## Stack
@@ -51,10 +52,25 @@ Détail complet dans [docs/tech-stack.md](docs/tech-stack.md).
 
 | Document | Contenu |
 |----------|---------|
+| [docs/sdlc.md](docs/sdlc.md) | Cycle de développement AI-native : les 6 étapes et leurs artefacts |
+| [CLAUDE.md](CLAUDE.md) | Connaissance institutionnelle : conventions, commandes, erreurs déjà commises |
+| [REVIEW.md](REVIEW.md) | Passes de revue, sévérités, ce qu'on ne rapporte pas |
+| [docs/architecture.md](docs/architecture.md) | Couches, routing, base de données, moteurs, parsing |
 | [docs/mission.md](docs/mission.md) | Vision, problème, utilisateurs, principes directeurs |
 | [docs/domain-model.md](docs/domain-model.md) | Concepts métier et leurs relations |
 | [docs/tech-stack.md](docs/tech-stack.md) | Technologies et contraintes techniques |
 | [docs/roadmap.md](docs/roadmap.md) | Milestones et features planifiées |
 | [docs/backlog.md](docs/backlog.md) | Features non encore planifiées |
-| [docs/conventions.md](docs/conventions.md) | Conventions de développement et qualité |
 | [docs/design-tokens.md](docs/design-tokens.md) | Identité visuelle, couleurs, typographie |
+| [docs/dette-conventions.md](docs/dette-conventions.md) | Écarts connus entre les règles et le codebase |
+
+## Contribuer
+
+Le projet suit un cycle AI-native décrit dans [docs/sdlc.md](docs/sdlc.md) :
+
+```text
+intent.md → spec.md → plan.md → code → pnpm verify → revue → merge
+```
+
+Aucun code n'est écrit avant qu'un `plan.md` soit approuvé. Les modèles sont dans
+[intent/_templates/](intent/_templates/). L'agent écrit, l'humain approuve.

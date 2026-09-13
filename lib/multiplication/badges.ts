@@ -17,12 +17,32 @@ export interface BadgeContext {
   totalCorrectCount: number;
 }
 
+/**
+ * Nom sémantique de l'icône du trophée. La couche présentation le résout en
+ * composant `lucide-react` ; `lib/` reste du TypeScript pur, sans dépendance React.
+ */
+export type BadgeIconName =
+  | "sprout"
+  | "flame"
+  | "zap"
+  | "target"
+  | "calendar-check"
+  | "footprints"
+  | "calculator"
+  | "medal"
+  | "timer"
+  | "sparkles"
+  | "library"
+  | "brain"
+  | "star"
+  | "crown";
+
 export interface BadgeDefinition {
   id: string;
   title: string;
   /** Décrit la condition ; sert aussi d'indice quand le trophée est verrouillé. */
   description: string;
-  emoji: string;
+  icon: BadgeIconName;
   isUnlocked: (ctx: BadgeContext) => boolean;
 }
 
@@ -35,70 +55,70 @@ export const BADGES: readonly BadgeDefinition[] = [
     id: "first-session",
     title: "Premier pas",
     description: "Tu as terminé ta première session",
-    emoji: "🌱",
+    icon: "sprout",
     isUnlocked: (ctx) => ctx.sessionCount >= 1,
   },
   {
     id: "streak-10",
     title: "Série de 10",
     description: "10 bonnes réponses d'affilée",
-    emoji: "🔥",
+    icon: "flame",
     isUnlocked: (ctx) => ctx.summary.bestStreak >= 10,
   },
   {
     id: "streak-20",
     title: "Série de 20",
     description: "20 bonnes réponses d'affilée",
-    emoji: "⚡",
+    icon: "zap",
     isUnlocked: (ctx) => ctx.summary.bestStreak >= 20,
   },
   {
     id: "perfect-session",
     title: "Sans faute",
     description: "Une session entière réussie du premier coup",
-    emoji: "🎯",
+    icon: "target",
     isUnlocked: (ctx) => ctx.summary.isPerfect,
   },
   {
     id: "five-sessions",
     title: "Habitué",
     description: "5 sessions terminées",
-    emoji: "📅",
+    icon: "calendar-check",
     isUnlocked: (ctx) => ctx.sessionCount >= 5,
   },
   {
     id: "twenty-sessions",
     title: "Marathon",
     description: "20 sessions terminées",
-    emoji: "🏃",
+    icon: "footprints",
     isUnlocked: (ctx) => ctx.sessionCount >= 20,
   },
   {
     id: "fifty-correct",
     title: "Cinquante",
     description: "50 bonnes réponses au total",
-    emoji: "🧮",
+    icon: "calculator",
     isUnlocked: (ctx) => ctx.totalCorrectCount >= 50,
   },
   {
     id: "five-hundred-correct",
     title: "Cinq cents",
     description: "500 bonnes réponses au total",
-    emoji: "💯",
+    icon: "medal",
     isUnlocked: (ctx) => ctx.totalCorrectCount >= 500,
   },
   {
     id: "first-challenge",
     title: "Chrono lancé",
     description: "Ta première session en mode Défi",
-    emoji: "⏱️",
+    icon: "timer",
     isUnlocked: (ctx) => ctx.summary.config.difficulty === "challenge",
   },
   {
     id: "challenge-perfect",
     title: "Éclair",
     description: "Une session Défi réussie sans faute",
-    emoji: "✨",
+    icon: "sparkles",
     isUnlocked: (ctx) =>
       ctx.summary.config.difficulty === "challenge" && ctx.summary.isPerfect,
   },
@@ -106,28 +126,28 @@ export const BADGES: readonly BadgeDefinition[] = [
     id: "long-session",
     title: "Grande session",
     description: "Une session de 30 questions",
-    emoji: "📚",
+    icon: "library",
     isUnlocked: (ctx) => ctx.summary.config.length === 30,
   },
   {
     id: "table-7-mastered",
     title: "La table de 7",
     description: "3 étoiles sur la table de 7",
-    emoji: "🧠",
+    icon: "brain",
     isUnlocked: (ctx) => ctx.stars["7"] === 3,
   },
   {
     id: "three-tables-mastered",
     title: "Trois tables",
     description: "3 étoiles sur trois tables",
-    emoji: "🌟",
+    icon: "star",
     isUnlocked: (ctx) => masteredTableCount(ctx.stars) >= 3,
   },
   {
     id: "all-tables-mastered",
     title: "Toutes les tables",
     description: "3 étoiles sur les 10 tables",
-    emoji: "👑",
+    icon: "crown",
     isUnlocked: (ctx) => masteredTableCount(ctx.stars) === 10,
   },
 ];

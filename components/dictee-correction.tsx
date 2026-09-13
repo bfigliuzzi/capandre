@@ -2,6 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  CircleCheck,
+  CircleX,
+  HeartHandshake,
+  PartyPopper,
+  Search,
+  Sprout,
+  TrendingUp,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ExerciseResults, WordResult } from "@/lib/exercise";
@@ -11,17 +22,17 @@ import type { ExerciseResults, WordResult } from "@/lib/exercise";
 // ---------------------------------------------------------------------------
 
 interface ScoreTier {
-  icon: string;
+  Icon: LucideIcon;
   message: string;
   className: string;
 }
 
 function getScoreTier(pct: number): ScoreTier {
-  if (pct === 100) return { icon: "🏆", message: "Parfait ! Tu as tout bon, bravo !", className: "correction-score--perfect" };
-  if (pct >= 80) return { icon: "🎉", message: "Super travail ! Encore un petit effort pour le sans-faute !", className: "correction-score--great" };
-  if (pct >= 50) return { icon: "💪", message: "Bien joué ! Continue à t'entraîner, tu progresses !", className: "correction-score--good" };
-  if (pct > 0) return { icon: "🌱", message: "C'est un bon début ! Refais l'exercice pour t'améliorer.", className: "correction-score--keep-going" };
-  return { icon: "🤗", message: "Ne t'inquiète pas, recommence et tu vas y arriver !", className: "correction-score--keep-going" };
+  if (pct === 100) return { Icon: Trophy, message: "Parfait ! Tu as tout bon, bravo !", className: "correction-score--perfect" };
+  if (pct >= 80) return { Icon: PartyPopper, message: "Super travail ! Encore un petit effort pour le sans-faute !", className: "correction-score--great" };
+  if (pct >= 50) return { Icon: TrendingUp, message: "Bien joué ! Continue à t'entraîner, tu progresses !", className: "correction-score--good" };
+  if (pct > 0) return { Icon: Sprout, message: "C'est un bon début ! Refais l'exercice pour t'améliorer.", className: "correction-score--keep-going" };
+  return { Icon: HeartHandshake, message: "Ne t'inquiète pas, recommence et tu vas y arriver !", className: "correction-score--keep-going" };
 }
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -53,7 +64,7 @@ export function DicteeCorrection({ dictationId }: DicteeCorrectionProps) {
   if (!results) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-8 min-h-[300px] text-center">
-        <span className="text-5xl opacity-50" aria-hidden="true">🔍</span>
+        <Search className="size-12 opacity-50" strokeWidth={1.5} aria-hidden="true" />
         <h2 className="font-heading text-xl font-bold text-muted-foreground">Aucun résultat</h2>
         <p className="text-base text-muted-foreground">
           Commence un exercice depuis la{" "}
@@ -69,7 +80,7 @@ export function DicteeCorrection({ dictationId }: DicteeCorrectionProps) {
     <div className="flex flex-col gap-6 exercise-fade-in">
       {/* Score */}
       <div className={cn("text-center p-6 border-2 rounded-xl", tier.className)}>
-        <div className="text-5xl mb-2" aria-hidden="true">{tier.icon}</div>
+        <tier.Icon className="size-12 mb-2 mx-auto" strokeWidth={1.5} aria-hidden="true" />
         <div className="font-heading text-4xl font-extrabold">
           {results.correctCount}&nbsp;/&nbsp;{results.totalCount}
         </div>
@@ -77,7 +88,9 @@ export function DicteeCorrection({ dictationId }: DicteeCorrectionProps) {
           {results.percentage}&nbsp;%
         </div>
         <p className="text-base font-medium mt-3 leading-normal">{tier.message}</p>
-        <p className="text-sm text-muted-foreground mt-2">
+        {/* text-foreground et non text-muted-foreground : sur le dégradé de score,
+            le gris tombe à 3,63:1, sous le seuil AA de 4,5:1 pour du 14px. */}
+        <p className="text-sm text-foreground mt-2">
           Niveau : {LEVEL_LABELS[results.level] ?? results.level}
         </p>
       </div>
@@ -130,12 +143,16 @@ function WordResultCard({ result }: { result: WordResult }) {
       className={cn(
         "flex items-start gap-4 px-6 py-4 bg-card rounded-xl border-2",
         result.correct
-          ? "border-l-[4px] border-l-[#10B981]"
-          : "border-l-[4px] border-l-[#EF4444] bg-[#FEF2F2] dark:bg-[oklch(0.223_0.008_274.573)]",
+          ? "border-l-[4px] border-l-success"
+          : "border-l-[4px] border-l-destructive bg-destructive/5",
       )}
     >
-      <div className="text-xl shrink-0 pt-0.5" aria-hidden="true">
-        {result.correct ? "✅" : "❌"}
+      <div className="shrink-0 pt-0.5" aria-hidden="true">
+        {result.correct ? (
+          <CircleCheck className="size-5 text-success" strokeWidth={2} />
+        ) : (
+          <CircleX className="size-5 text-destructive" strokeWidth={2} />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-heading font-bold mb-1">{label}</div>

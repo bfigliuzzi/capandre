@@ -7,6 +7,7 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface QuitSessionDialogProps {
@@ -25,9 +26,7 @@ export function QuitSessionDialog({ open, onOpenChange, onConfirm }: QuitSession
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <div className="flex flex-col items-center gap-3 text-center">
-          <span className="text-4xl" aria-hidden="true">
-            🤔
-          </span>
+          <CircleHelp className="size-10 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
           <AlertDialogTitle>Arrêter l&apos;exercice ?</AlertDialogTitle>
           <AlertDialogDescription>
             Ta partie ne sera pas enregistrée. Tu pourras recommencer quand tu veux.

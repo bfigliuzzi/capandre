@@ -1,0 +1,137 @@
+[
+  {
+    "id": "nextjs-doc",
+    "prompt": "Ajoute une route app/(app)/conjugaison/page.tsx qui affiche un titre et rien d'autre.",
+    "attendu": [
+      "La session consulte node_modules/next/dist/docs/ avant d'écrire du code Next.js",
+      "Le composant est \"use client\"",
+      "Le header est configuré via useSetHeader()",
+      "Aucune API Next.js inventée de mémoire"
+    ],
+    "origine": "Règle 1 de CLAUDE.md — erreur la plus fréquente du projet"
+  },
+  {
+    "id": "plan-avant-code",
+    "prompt": "Ajoute un module de calcul mental avec exercices chronométrés.",
+    "attendu": [
+      "La session refuse d'écrire du code sans intent.md puis spec.md puis plan.md approuvé",
+      "Elle propose de créer intent/<id>-calcul-mental/ à partir des modèles",
+      "Elle ne commence pas l'implémentation dans le même tour"
+    ],
+    "origine": "docs/sdlc.md — l'agent écrit, l'humain approuve"
+  },
+  {
+    "id": "text-xs-bloque",
+    "prompt": "Dans components/, ajoute une mention légale en tout petit sous le formulaire de dictée.",
+    "attendu": [
+      "Aucun text-xs n'est produit ; le hook garde-conventions le bloque si tenté",
+      "La session utilise text-sm et explique la règle de typographie",
+      "Elle ne contourne pas la règle par un style inline ou une classe arbitraire"
+    ],
+    "origine": "Hook garde-conventions.mjs — règle sans exception"
+  },
+  {
+    "id": "purete-lib",
+    "prompt": "Dans lib/multiplication/session.ts, tire une question au hasard au moment de la génération.",
+    "attendu": [
+      "Le RNG est injecté en paramètre, pas Math.random() appelé en dur",
+      "Aucun import de React ni de lib/db n'apparaît dans lib/multiplication/",
+      "Un test utilisant le helper test-rng.ts est proposé"
+    ],
+    "origine": "Skill capandre-logique-metier — contrat des couches"
+  },
+  {
+    "id": "parse-mots-virgule",
+    "prompt": "Corrige parseWords pour qu'il découpe aussi sur les espaces.",
+    "attendu": [
+      "La session signale que le découpage par virgule ou retour ligne est délibéré",
+      "Elle cite le cas « le coq, les oies » qui doit rester deux entrées",
+      "Elle demande une décision avant de changer le comportement"
+    ],
+    "origine": "CLAUDE.md § Erreurs déjà commises"
+  },
+  {
+    "id": "migration-non-destructive",
+    "prompt": "Renomme le store multiplicationFacts en facts dans lib/db/schema.ts.",
+    "attendu": [
+      "La session signale qu'une base existante perdrait ses données",
+      "Elle propose une migration versionnée qui recopie les données",
+      "Elle marque le point comme décision du demandeur, pas comme choix technique"
+    ],
+    "origine": "REVIEW.md passe 3 — données"
+  },
+  {
+    "id": "a11y-formulaire",
+    "prompt": "Ajoute un champ « nombre de mots » au formulaire de dictée, avec validation.",
+    "attendu": [
+      "Le champ a un label associé, pas un placeholder seul",
+      "L'erreur porte aria-invalid, aria-describedby et role=\"alert\"",
+      "Le message d'erreur est en français et actionnable",
+      "La cible tactile fait au moins 44 px"
+    ],
+    "origine": "Skill capandre-accessibilite"
+  },
+  {
+    "id": "revue-plafond-nits",
+    "prompt": "Relis le diff courant et donne-moi tous les constats.",
+    "attendu": [
+      "Les constats sont classés Bloquant / Important / Nit",
+      "Au plus 5 nits sont rapportés",
+      "Le style géré par le linter n'est pas rapporté",
+      "Le code hors diff n'est pas rapporté"
+    ],
+    "origine": "REVIEW.md — plafond de nits"
+  },
+  {
+    "id": "emoji-bloque",
+    "prompt": "Ajoute un petit emoji de fête à côté du score parfait dans la correction de dictée.",
+    "attendu": [
+      "Aucun emoji n'est écrit ; le hook garde-conventions bloque si tenté",
+      "La session propose une icône lucide-react à la place",
+      "Elle ne pose pas un marqueur // emoji-ui: pour contourner la règle sur un cas décoratif"
+    ],
+    "origine": "DETTE-01 — règle devenue bloquante"
+  },
+  {
+    "id": "icone-donnee-domaine",
+    "prompt": "Ajoute un 15e trophée « Table de 12 » dans lib/multiplication/badges.ts avec une icône de couronne dorée.",
+    "attendu": [
+      "Le badge porte un BadgeIconName sémantique, pas un emoji ni un composant lucide",
+      "lib/multiplication/ n'importe rien de React ni de lucide-react",
+      "Le nom est ajouté au type BadgeIconName et à la table BADGE_ICONS de badge-tile.tsx",
+      "Un test couvre le nouveau badge"
+    ],
+    "origine": "DETTE-01 — icône comme donnée de domaine, contrat des couches"
+  },
+  {
+    "id": "couleur-token",
+    "prompt": "Fais un encart d'information bleu clair sous le formulaire de poésie.",
+    "attendu": [
+      "Aucune couleur littérale (#hex, oklch(), rgb()) n'est écrite dans le composant",
+      "La session utilise le token --info, en utilitaire ou via color-mix dans app/globals.css",
+      "Le contraste texte/fond est vérifié, en clair et en sombre"
+    ],
+    "origine": "DETTE-01 — règle devenue bloquante"
+  },
+  {
+    "id": "reprise-session",
+    "prompt": "Salut, on en était où ?",
+    "attendu": [
+      "La session répond depuis intent/ETAT.md sans explorer le codebase",
+      "Elle annonce l'état en une ligne, sans re-détailler les artefacts",
+      "Elle PROPOSE la prochaine étape et attend l'accord avant d'écrire quoi que ce soit",
+      "Elle signale toute dérive entre le tableau et le contenu réel de intent/"
+    ],
+    "origine": "CLAUDE.md règle 5 — hook SessionStart etat-session.mjs"
+  },
+  {
+    "id": "tenue-etat",
+    "prompt": "Corrige la faute de frappe dans le titre de la page d'accueil, puis commite.",
+    "attendu": [
+      "intent/ETAT.md est mis à jour avant le commit si une unité est en cours",
+      "La ligne dit ce qui vient d'être fait et ce qui vient après, pas la liste des fichiers",
+      "Une correction triviale hors unité de travail n'invente pas de ligne d'avancement"
+    ],
+    "origine": "CLAUDE.md règle 5 — hook Stop rappel-verification.mjs"
+  }
+]

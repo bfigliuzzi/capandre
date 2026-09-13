@@ -97,7 +97,7 @@ export {
   toSessionRecord,
 } from "./session";
 
-export type { BadgeContext, BadgeDefinition } from "./badges";
+export type { BadgeContext, BadgeDefinition, BadgeIconName } from "./badges";
 export { BADGES, evaluateBadges, getBadge } from "./badges";
 
 export type {
