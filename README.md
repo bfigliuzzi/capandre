@@ -57,7 +57,6 @@ Détail complet dans [docs/tech-stack.md](docs/tech-stack.md).
 | [REVIEW.md](REVIEW.md) | Passes de revue, sévérités, ce qu'on ne rapporte pas |
 | [docs/architecture.md](docs/architecture.md) | Couches, routing, base de données, moteurs, parsing |
 | [docs/mission.md](docs/mission.md) | Vision, problème, utilisateurs, principes directeurs |
-| [docs/domain-model.md](docs/domain-model.md) | Concepts métier et leurs relations |
 | [docs/tech-stack.md](docs/tech-stack.md) | Technologies et contraintes techniques |
 | [docs/roadmap.md](docs/roadmap.md) | Milestones et features planifiées |
 | [docs/backlog.md](docs/backlog.md) | Features non encore planifiées |
