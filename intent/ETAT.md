@@ -22,8 +22,9 @@ Elles suivent `docs/sdlc.md`. Une unité bloquée porte `bloquée` et la raison 
 
 ## Tenue
 
-Mise à jour **à la fin de chaque session de travail**, par Claude, avant le commit.
-Le hook `Stop` le rappelle quand des sources ont changé sans que ce fichier soit touché.
+Mise à jour en fin de session **s'il y a une unité ouverte**. Ce fichier suit les features,
+pas les commits : un travail de configuration, d'outillage ou de documentation n'y crée pas
+de ligne. Le hook `Stop` ne rappelle la tenue que si `intent/` contient une unité ouverte.
 
 Ce qu'une bonne ligne contient : ce qui vient d'être fait, en une phrase, et ce qui vient
 après. Pas la liste des fichiers, pas le raisonnement — ils sont dans `plan.md` et dans git.

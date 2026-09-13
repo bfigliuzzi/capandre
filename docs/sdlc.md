@@ -120,7 +120,8 @@ l'humain accepte — sinon une session pourrait se remettre à écrire du code s
 personne l'ait demandé, ce que tout le reste du cycle cherche à empêcher.
 
 Le hook `Stop` rappelle la mise à jour quand du travail a eu lieu sans que `ETAT.md` ait
-été touché : un état non tenu vaut moins qu'un état absent, parce qu'il ment.
+été touché — mais seulement si une unité est ouverte. `ETAT.md` suit les features, pas les
+commits : hors feature, il n'y a rien à noter et le rappel ne serait que du bruit.
 
 ## Arborescence du workflow
 

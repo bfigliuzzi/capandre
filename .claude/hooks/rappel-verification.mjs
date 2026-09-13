@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // Stop — rappelle ce qui doit être fait en fin de session de travail :
 //   - la boucle de feedback quand des sources ont changé
-//   - la tenue de intent/ETAT.md, sans quoi la session suivante repart en
-//     redécouverte, ce que ce fichier existe précisément pour éviter
+//   - la tenue de intent/ETAT.md, mais UNIQUEMENT si une unité de travail est
+//     ouverte. Hors feature — configuration, outillage, documentation — il n'y a
+//     rien à noter et le rappel serait du bruit.
 // Non bloquant : ce sont des rappels, pas des portes. La porte, c'est la revue.
 import { execFileSync } from "node:child_process";
-import { resolve, dirname } from "node:path";
+import { readdirSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -30,9 +32,20 @@ if (sources.length) {
   rappels.push(`${sources.length} source(s) modifiée(s) : ${apercu}${reste}. Boucle de feedback : pnpm verify`);
 }
 
-// Du travail réel sans ligne d'avancement mise à jour : la session suivante
-// repartira en redécouverte.
-if (touches.length && !etatTenu) {
+/** Unités ouvertes : un dossier de intent/ non préfixé DONE-. */
+function uniteOuverte() {
+  try {
+    return readdirSync(join(RACINE, "intent"), { withFileTypes: true }).some(
+      (e) => e.isDirectory() && e.name !== "_templates" && !e.name.startsWith("DONE-"),
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Le rappel ne vaut que pendant une unité de travail. Hors feature, il n'y a
+// rien à noter : ETAT.md suit les features, pas les commits.
+if (touches.length && !etatTenu && uniteOuverte()) {
   rappels.push("intent/ETAT.md n'a pas été mis à jour : note la dernière action avant de commiter.");
 }
 

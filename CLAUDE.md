@@ -14,8 +14,9 @@ en France (dictées, poésies, tables de multiplication ; à venir : conjugaison
    Les termes techniques, noms de variables, chemins et noms de patterns restent en anglais.
 3. **Aucun code n'est écrit sans `plan.md` approuvé** — voir `docs/sdlc.md`.
 4. **La boucle de vérification passe avant tout push** : `pnpm verify`.
-5. **`intent/ETAT.md` se lit en ouverture de session et se met à jour en fin de session.**
-   C'est ce qui évite de redécouvrir où on en est. Détail ci-dessous.
+5. **`intent/ETAT.md` se lit en ouverture de session, et se met à jour en fin de session
+   *s'il y a une unité de travail ouverte*.** Hors feature — configuration, outillage,
+   documentation — il n'y a rien à y noter. Détail ci-dessous.
 
 ## Commandes
 
@@ -49,9 +50,11 @@ Il indexe, il ne duplique pas — le détail vit dans `intent/<id>/`.
    la règle « l'agent écrit, l'humain approuve » vaut aussi pour la reprise.
 3. Signaler toute dérive entre le tableau et le contenu réel de `intent/`.
 
-**En fin de session de travail**, mettre à jour la ligne concernée avant de commiter.
-Ce qu'elle contient : ce qui vient d'être fait en une phrase, et ce qui vient après.
-Ni la liste des fichiers, ni le raisonnement — ils sont dans `plan.md` et dans git.
+**En fin de session**, mettre à jour la ligne concernée **si une unité est ouverte**.
+`ETAT.md` suit les features, pas les commits : un travail de configuration ou d'outillage
+n'y crée pas de ligne. Ce qu'une ligne contient : ce qui vient d'être fait en une phrase,
+et ce qui vient après. Ni la liste des fichiers, ni le raisonnement — ils sont dans
+`plan.md` et dans git.
 
 **Unité terminée** : `git mv intent/<id> intent/DONE-<id>`, puis passer la ligne à
 `terminée`. Un `ls intent/` suffit alors à voir ce qui reste ouvert. Le renommage casse
@@ -115,3 +118,27 @@ la règle 5 ne dépend donc pas de la bonne volonté de la session. `rappel-veri
 le paragraphe concerné — `// couleur-en-dur: <raison>` ou `// emoji-ui: <raison>` — ce qui
 la rend visible en revue. Sans raison écrite, pas d'exception.
 Les skills `capandre-*` de `.claude/skills/` portent les politiques (a11y, tokens, logique métier).
+
+## Skills
+
+Deux origines, deux statuts :
+
+- **`capandre-*`** — écrites pour le projet, versionnées dans `.claude/skills/`. Elles font
+  autorité : en cas de contradiction avec une skill tierce, c'est elle qui tranche.
+- **Tierces** — vendorisées dans `.agents/skills/`, symlinkées, verrouillées par
+  `skills-lock.json`. Elles ne s'éditent pas à la main (un hook le bloque).
+
+Une skill tierce n'est gardée que si **(1)** elle fait quelque chose que le cycle du projet
+ne fait pas déjà, et **(2)** elle n'écrit pas dans la configuration du projet. C'est à cette
+règle qu'on a élagué de 44 à 11 : tout ce qui doublonnait `intent/` → `spec` → `plan`, ou
+voulait réécrire `.claude/settings.json`, est sorti.
+
+```bash
+npx skills@latest experimental_install   # restaurer l'état exact du lock
+npx skills@latest list                   # ce qui est installé
+npx skills@latest remove <skill>         # retirer (met le lock à jour)
+```
+
+`skills-lock.json` est la source de vérité : un clone neuf se remet à niveau avec
+`experimental_install`. Ajouter un paquet entier (`add <owner>/<repo>`) ramène tout son
+contenu — repasser la règle ci-dessus et élaguer dans la foulée.
