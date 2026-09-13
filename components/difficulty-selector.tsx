@@ -63,8 +63,10 @@ export function DifficultySelector({ defaultLevel = "discovery", onSelect }: Dif
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <span className="flex justify-center">
-            <StarRating value={level.stars} size="sm" label={`${level.label} : ${starsLabel(level.stars)}`} />
+          {/* aria-hidden : le role="img" de StarRating entrerait dans le nom
+              accessible du radio et redirait le libellé affiché juste dessous. */}
+          <span className="flex justify-center" aria-hidden="true">
+            <StarRating value={level.stars} size="sm" label={starsLabel(level.stars)} />
           </span>
           <span className="block text-base mt-0.5">{level.label}</span>
         </button>

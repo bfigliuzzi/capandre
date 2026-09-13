@@ -53,7 +53,17 @@ Produit à partir de `spec.md`. Statut : **approuvé**.
 - [x] `grep` couleur littérale hors `globals.css` : seul `app/layout.tsx`, marqué en exception
 - [x] Le hook bloque `text-xs`, emoji simple, `⏱` (U+23F1), `⭐` (U+2B50), hex, `oklch()`, `rgb()`
 - [x] Le hook laisse passer les deux lignes `theme-color` marquées
-- [x] Contrastes recalculés : 7,34:1 à 8,56:1 en clair et en sombre (AA exige 4,5:1)
+- [x] Contrastes mesurés, couple par couple :
+
+| Sélecteur | Texte sur fond | Clair | Sombre | Seuil |
+|---|---|---|---|---|
+| `.callout-warning` | texte sur fond teinté 18 % | 7,34:1 | 8,56:1 | 4,5:1 |
+| `.correction-letter--correct` | lettre sur fond teinté 18 % | 7,44:1 | 7,56:1 | 4,5:1 |
+| `.correction-letter--wrong` | lettre sur fond teinté 18 % | 7,80:1 | 8,20:1 | 4,5:1 |
+| `.correction-score--*` | « Niveau : … » sur dégradé | 12,37:1 | 11,87:1 | 4,5:1 |
+| `.letter-input` | lettre saisie sur `--muted` | 4,54:1 | 5,49:1 | 3:1 (24px gras) |
+| `.tts-btn` | libellé sur fond teinté 10 % | 5,03:1 | 6,65:1 | 4,5:1 |
+| `.tts-btn:hover` | `--primary-foreground` sur `--primary` | 5,00:1 | 7,21:1 | 4,5:1 |
 - [ ] Relecture visuelle mode clair et mode sombre — **à faire par le demandeur**
 
 ## Écarts au plan
@@ -66,6 +76,40 @@ Produit à partir de `spec.md`. Statut : **approuvé**.
   version de ce travail en dupliquait le rendu, ce qui était une régression de réutilisation.
 - La plage emoji du hook a dû être élargie à U+2300–U+23FF et U+1F000–U+1FAFF : la version
   initiale ratait `⏱` et les plans emoji bas.
+
+## Constats de revue, corrigés après coup
+
+La revue (`revue-code`) a remonté trois constats *Important* que la première passe avait
+manqués. Tous trois vérifiés puis corrigés :
+
+1. **`aria-hidden` perdu sur les étoiles** (`difficulty-selector`, `dictee-exercise`).
+   `StarRating` porte `role="img"` + `aria-label`, qui entre dans le nom accessible du
+   bouton radio : il s'annonçait « Découverte : 1 étoile sur 3 Découverte ». C'était le
+   seul point du diff qui contredisait R4 de sa propre spec. Enveloppe `aria-hidden`
+   restaurée, préfixe redondant retiré du `label`.
+2. **L'exemption du hook portait sur tout `app/globals.css`**, pas sur les blocs de
+   définition de tokens. Il y restait **18 couleurs littérales** — la valeur *claire* de
+   `--primary`, `--success` et `--warning` figée hors thème. Conséquence mesurée : les
+   lettres saisies dans l'exercice de dictée tombaient à **2,88:1** en mode sombre
+   (seuil 3:1) et le libellé du bouton « écouter » à **3,15:1** (seuil 4,5:1).
+   L'affirmation « le codebase respecte intégralement les règles » était donc fausse, et
+   l'exemption garantissait que rien ne le signalerait. Les 18 littéraux sont passés aux
+   tokens, l'exemption est restreinte à `@theme`, `:root` et `.dark`.
+3. **La preuve de contraste ne couvrait pas les sélecteurs réécrits les plus visibles.**
+   « Niveau : Découverte » sur le dégradé de score était à **3,63:1** — sous AA, et
+   dégradé par le diff tout en étant déclaré conforme. Passé en `text-foreground`
+   (12,37:1). Le tableau ci-dessus nomme désormais chaque couple mesuré.
+
+Nits corrigés : regex couleur du hook élargie (`#fff`, `#aabbccdd`, `hsl()`, `lab()`
+passaient au travers), `Percent` remplacé par `Medal` pour le trophée « Cinq cents »,
+icônes de `ModuleCard` et `ContentItem` reprenant la teinte de leur variante, classes
+inertes retirées de `word-preview`, commentaire devenu faux supprimé de `globals.css` et
+sélecteurs `.correction-score--*` / `.session-score--*` fusionnés — ils étaient devenus
+identiques à l'octet près.
+
+Deux constats étaient des règles manquantes plutôt que des remarques ; elles sont entrées
+dans `.claude/skills/capandre-accessibilite/SKILL.md` (nom accessible des contrôles) et
+`intent/_templates/plan.md` (une preuve de contraste nomme ses couples).
 
 ## Approbation
 

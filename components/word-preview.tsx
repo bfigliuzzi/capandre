@@ -32,7 +32,7 @@ export function WordPreview({ words, duplicates }: WordPreviewProps) {
                 : "bg-primary/10 text-primary border border-primary/20"
             )}
           >
-            {duplicates.has(word) && <TriangleAlert className="mr-1 inline size-4 align-text-bottom" strokeWidth={2} aria-hidden="true" />}
+            {duplicates.has(word) && <TriangleAlert className="mr-1 size-4" strokeWidth={2} aria-hidden="true" />}
             {word}
             {duplicates.has(word) && <span className="sr-only">(doublon)</span>}
           </span>

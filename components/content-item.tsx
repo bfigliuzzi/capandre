@@ -30,7 +30,7 @@ export function ContentItem({
       <div
         className={cn(
           "flex items-center justify-center size-11 rounded-lg shrink-0",
-          variant === "primary" ? "bg-primary/10" : "bg-secondary/10"
+          variant === "primary" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
         )}
         aria-hidden
       >

@@ -33,6 +33,13 @@ Ce qui démontrera que le plan est réalisé :
 - [ ] <tests unitaires nommés, couvrant cas nominal et cas d'erreur>
 - [ ] <vérification manuelle : parcours, écran, appareil>
 
+Si le travail touche des couleurs, la preuve de contraste **nomme les couples mesurés** :
+une fourchette globale n'est pas vérifiable en revue et masque les sélecteurs oubliés.
+
+| Sélecteur / composant | Texte sur fond | Clair | Sombre | Seuil |
+|---|---|---|---|---|
+| `<ex. .callout-warning>` | `<texte sur fond>` | `<x:1>` | `<x:1>` | `<4,5:1 ou 3:1>` |
+
 ## Approbation
 
 - [ ] Développeur — <nom>, <date>

@@ -29,7 +29,7 @@ export type BadgeIconName =
   | "calendar-check"
   | "footprints"
   | "calculator"
-  | "percent"
+  | "medal"
   | "timer"
   | "sparkles"
   | "library"
@@ -104,7 +104,7 @@ export const BADGES: readonly BadgeDefinition[] = [
     id: "five-hundred-correct",
     title: "Cinq cents",
     description: "500 bonnes réponses au total",
-    icon: "percent",
+    icon: "medal",
     isUnlocked: (ctx) => ctx.totalCorrectCount >= 500,
   },
   {

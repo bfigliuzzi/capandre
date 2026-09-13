@@ -16,7 +16,9 @@ qui n'est pas encore tenue — et c'est une anomalie à résorber, pas un état 
 | Pas de `text-xs` | jamais violée | **bloquante** |
 
 DETTE-01 a remplacé 35 emoji répartis dans 17 fichiers par des icônes `lucide-react`,
-et sorti 19 couleurs littérales vers les tokens de `app/globals.css`. Au passage :
+et sorti 37 couleurs littérales vers les tokens de `app/globals.css` — dont 18 qui se
+trouvaient **dans `globals.css` lui-même**, hors blocs de tokens, et que la première passe
+avait manquées parce que l'exemption portait sur le fichier entier. Au passage :
 
 - `lib/multiplication/badges.ts` stocke désormais un `BadgeIconName` sémantique
   (`"crown"`, `"sprout"`…) au lieu d'un emoji. La couche pure reste sans dépendance React ;
@@ -25,14 +27,23 @@ et sorti 19 couleurs littérales vers les tokens de `app/globals.css`. Au passag
   comme cassées en mode sombre. Passées en `color-mix` sur les tokens sémantiques, elles
   s'adaptent seules : les overrides `.dark` ont disparu.
 - Le trio ambre dupliqué dans 4 composants est devenu une classe `.callout-warning`.
-- Contrastes recalculés après passage aux tokens : 7,3:1 à 8,6:1 en clair comme en sombre
-  (WCAG AA exige 4,5:1).
+- Trois régressions de contraste en mode sombre corrigées, causées par des valeurs claires
+  figées : lettres saisies de l'exercice de dictée **2,88 → 5,49:1**, libellé du bouton
+  « écouter » **3,15 → 6,65:1**. Et une en mode clair : « Niveau : … » sur le dégradé de
+  score, **3,63 → 12,37:1**.
+- Tous les couples mesurés sont tabulés dans `intent/DETTE-01-conventions/plan.md`
+  § Preuve. Une fourchette globale n'est pas une preuve vérifiable : c'est une règle
+  désormais inscrite dans `intent/_templates/plan.md`.
 
 ### Exception en vigueur
 
 `app/layout.tsx` — les metadata `theme-color` partent dans une balise `<meta>` lue par le
 navigateur, hors CSS : elles ne peuvent pas être des variables. La ligne porte un marqueur
 motivé `// couleur-en-dur: …`, seule forme d'exception acceptée par le hook.
+
+Dans `app/globals.css`, seuls `@theme`, `:root` et `.dark` peuvent porter un littéral :
+c'est là que les tokens sont **définis**. Partout ailleurs dans le fichier, un littéral fige
+la valeur d'un seul thème — c'est précisément ce qui cassait le mode sombre.
 
 ## Reste à traiter
 

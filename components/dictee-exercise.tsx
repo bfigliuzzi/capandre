@@ -321,8 +321,9 @@ export function DicteeExercise({ dictation }: DicteeExerciseProps) {
                 level === l.id && "difficulty-card--active",
               )}
             >
-              <div className="flex shrink-0 items-center justify-center">
-                <StarRating value={l.stars} size="sm" label={`${l.label} : ${starsLabel(l.stars)}`} />
+              {/* aria-hidden : le nom du radio vient du libellé et de la description. */}
+              <div className="flex shrink-0 items-center justify-center" aria-hidden="true">
+                <StarRating value={l.stars} size="sm" label={starsLabel(l.stars)} />
               </div>
               <div className="flex-1">
                 <div className="font-heading font-bold text-base">{l.label}</div>

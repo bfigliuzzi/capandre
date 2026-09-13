@@ -88,7 +88,9 @@ export function DicteeCorrection({ dictationId }: DicteeCorrectionProps) {
           {results.percentage}&nbsp;%
         </div>
         <p className="text-base font-medium mt-3 leading-normal">{tier.message}</p>
-        <p className="text-sm text-muted-foreground mt-2">
+        {/* text-foreground et non text-muted-foreground : sur le dégradé de score,
+            le gris tombe à 3,63:1, sous le seuil AA de 4,5:1 pour du 14px. */}
+        <p className="text-sm text-foreground mt-2">
           Niveau : {LEVEL_LABELS[results.level] ?? results.level}
         </p>
       </div>

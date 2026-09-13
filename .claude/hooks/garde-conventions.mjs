@@ -25,7 +25,8 @@ const EXT = /\.(ts|tsx|css)$/;
 // Plage large : plans emoji, symboles divers, dingbats, flèches et pictogrammes
 // techniques (U+2300-U+23FF couvre ⏱, que la première version de ce hook ratait).
 const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u;
-const COULEUR = /#[0-9a-fA-F]{6}\b|\boklch\(|\brgba?\(/;
+// Couvre #abc, #aabbcc, #aabbccdd et les fonctions de couleur.
+const COULEUR = /#[0-9a-fA-F]{3,8}\b|\b(?:oklch|oklab|lch|lab|rgba?|hsla?|hwb|color)\(/;
 
 const brut = await new Promise((res) => {
   let d = "";
@@ -63,7 +64,8 @@ const lignes = contenu.split("\n");
  * un marqueur par ligne.
  */
 function lignesExemptees(marqueur) {
-  const motif = new RegExp(`//\\s*${marqueur}\\s*:\\s*\\S`);
+  // `// marqueur:` en TS/TSX, `/* marqueur: */` en CSS.
+  const motif = new RegExp(`(?://|/\\*)\\s*${marqueur}\\s*:\\s*\\S`);
   const couvertes = new Set();
   lignes.forEach((ligne, i) => {
     if (!motif.test(ligne)) return;
@@ -76,7 +78,7 @@ function infractions(predicat, marqueur) {
   const exemptees = marqueur ? lignesExemptees(marqueur) : new Set();
   const lignesFautives = [];
   lignes.forEach((ligne, i) => {
-    if (predicat(ligne) && !exemptees.has(i)) lignesFautives.push(i + 1);
+    if (predicat(ligne, i) && !exemptees.has(i)) lignesFautives.push(i + 1);
   });
   return lignesFautives;
 }
@@ -91,17 +93,41 @@ if (xs.length) {
   );
 }
 
-// app/globals.css définit les tokens : c'est le seul endroit où une couleur
-// littérale est à sa place.
-if (rel !== "app/globals.css") {
-  const durs = infractions((l) => COULEUR.test(l), "couleur-en-dur");
+/**
+ * Lignes appartenant à un bloc de DÉFINITION de tokens (`@theme`, `:root`, `.dark`).
+ * C'est le seul endroit d'app/globals.css où une couleur littérale est à sa place :
+ * ailleurs dans le fichier, un littéral fige une valeur d'un seul thème et casse
+ * le mode sombre — c'est exactement ce qu'on a trouvé en résorbant DETTE-01.
+ */
+function lignesDeTokens() {
+  const couvertes = new Set();
+  let profondeur = 0;
+  let dedans = false;
+  lignes.forEach((ligne, i) => {
+    if (!dedans && /^\s*(@theme|:root|\.dark)\b[^;]*$/.test(ligne)) dedans = true;
+    if (!dedans) return;
+    couvertes.add(i);
+    profondeur += (ligne.match(/\{/g) ?? []).length - (ligne.match(/\}/g) ?? []).length;
+    if (profondeur <= 0 && ligne.includes("}")) {
+      dedans = false;
+      profondeur = 0;
+    }
+  });
+  return couvertes;
+}
+
+{
+  const tokens = rel.endsWith(".css") ? lignesDeTokens() : new Set();
+  const durs = infractions((l, i) => COULEUR.test(l) && !tokens.has(i), "couleur-en-dur");
   if (durs.length) {
     constats.push(
       `Couleur en dur (${rel}:${durs.join(", ")}). Les couleurs passent par les tokens de ` +
         `app/globals.css — utilitaires bg-/text-/border- ou color-mix(in oklab, var(--token) N%, var(--card)). ` +
         `Voir docs/design-tokens.md et la skill capandre-design-tokens. ` +
-        `Si la valeur sort vraiment du CSS (metadata theme-color), marque la ligne ` +
-        `avec « // couleur-en-dur: <raison> ».`,
+        `Dans app/globals.css, seuls @theme, :root et .dark peuvent porter un littéral : ` +
+        `ailleurs il fige un seul thème et casse le mode sombre. ` +
+        `Si la valeur sort vraiment du CSS (metadata theme-color), marque le paragraphe ` +
+        `avec « couleur-en-dur: <raison> ».`,
     );
   }
 }

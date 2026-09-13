@@ -25,6 +25,21 @@ et la clarté du vocabulaire.
 | Taille de texte | Base 16px (`text-base`), annotations 14px (`text-sm`). Jamais `text-xs`. |
 | Langue | Tous les textes destinés aux technologies d'assistance sont **en français**. |
 
+## Nom accessible des contrôles
+
+Le nom d'un `button`, d'un `role="radio"` ou d'un lien est calculé **à partir de son
+contenu**. Tout ce qui porte un nom accessible à l'intérieur y entre.
+
+- **`role="img"` avec `aria-label` à l'intérieur d'un contrôle : interdit.** Envelopper
+  dans `aria-hidden="true"`, sinon le libellé est annoncé deux fois.
+  `StarRating` est le cas typique : il impose un `label`, donc chaque appelant doit
+  trancher. Dans un radio de difficulté, les étoiles sont décoratives — le nom vient
+  du libellé visible.
+- Vérifier le nom calculé, pas seulement la présence d'un `aria-label` : un contrôle
+  qui s'annonce « Découverte : 1 étoile sur 3 Découverte » a un défaut, pas une amélioration.
+- Une icône purement décorative est toujours `aria-hidden`. Une icône qui porte seule
+  l'information a un nom accessible — et alors rien d'autre ne doit le répéter.
+
 ## Spécifique enfant
 
 - **Vocabulaire** : mots du programme CP–CM2. Pas de terme technique dans l'interface enfant

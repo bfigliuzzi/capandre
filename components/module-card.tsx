@@ -29,7 +29,10 @@ export function ModuleCard({ href, icon: Icon, title, description, variant = "pr
           "flex items-center justify-center size-16 rounded-xl shrink-0",
           variant === "primary" && "bg-primary/10",
           variant === "secondary" && "bg-secondary/10",
-          variant === "tertiary" && "bg-info/10"
+          variant === "tertiary" && "bg-info/10",
+          variant === "primary" && "text-primary",
+          variant === "secondary" && "text-secondary",
+          variant === "tertiary" && "text-info"
         )}
         aria-hidden
       >
