@@ -130,8 +130,16 @@ Deux origines, deux statuts :
 
 Une skill tierce n'est gardée que si **(1)** elle fait quelque chose que le cycle du projet
 ne fait pas déjà, et **(2)** elle n'écrit pas dans la configuration du projet. C'est à cette
-règle qu'on a élagué de 44 à 11 : tout ce qui doublonnait `intent/` → `spec` → `plan`, ou
+règle qu'on a élagué de 44 à 13 : tout ce qui doublonnait `intent/` → `spec` → `plan`, ou
 voulait réécrire `.claude/settings.json`, est sorti.
+
+**Avant de retirer une skill, lire son `SKILL.md`.** Certaines sont des composites de
+quelques lignes qui en appellent d'autres : `grill-with-docs` appelle `grilling` et
+`domain-modeling`. Retirer une dépendance casse le composite en silence — la description
+seule ne le dit pas.
+
+`domain-modeling` écrit un `CONTEXT.md` et des ADR. Le projet a déjà `docs/domain-model.md` :
+tant que les deux coexistent, dire lequel fait foi dans la spec de l'unité concernée.
 
 ```bash
 npx skills@latest experimental_install   # restaurer l'état exact du lock
