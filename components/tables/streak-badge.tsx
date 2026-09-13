@@ -1,5 +1,6 @@
 "use client";
 
+import { Flame } from "lucide-react";
 import { STREAK_MIN_DISPLAY } from "@/lib/multiplication";
 
 interface StreakBadgeProps {
@@ -20,7 +21,7 @@ export function StreakBadge({ streak }: StreakBadgeProps) {
       className="mult-streak-pop inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-3 py-1 text-base font-bold"
       aria-hidden="true"
     >
-      <span>🔥</span>
+      <Flame className="size-4 text-warning" strokeWidth={2} />
       <span>{streak} à la suite !</span>
     </span>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Library, Target } from "lucide-react";
 import { ModuleCard } from "@/components/module-card";
 import { TableOverview } from "@/components/tables/table-overview";
 import { SoundToggle } from "@/components/tables/sound-toggle";
@@ -26,14 +27,14 @@ export function TablesHome() {
       <div className="flex flex-col gap-3">
         <ModuleCard
           href="/tables/revision"
-          icon="📚"
+          icon={Library}
           title="Révision"
           description="Regarde et apprends les tables, une par une."
           variant="secondary"
         />
         <ModuleCard
           href="/tables/exercice"
-          icon="🎯"
+          icon={Target}
           title="Exercice"
           description="Réponds aux questions et gagne des étoiles."
           variant="primary"

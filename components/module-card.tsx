@@ -1,18 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModuleCardProps {
   href: string;
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   variant?: "primary" | "secondary" | "tertiary";
 }
 
-export function ModuleCard({ href, icon, title, description, variant = "primary" }: ModuleCardProps) {
+export function ModuleCard({ href, icon: Icon, title, description, variant = "primary" }: ModuleCardProps) {
   return (
     <Link
       href={href}
@@ -26,14 +26,14 @@ export function ModuleCard({ href, icon, title, description, variant = "primary"
     >
       <div
         className={cn(
-          "flex items-center justify-center size-16 rounded-xl text-[2rem] shrink-0",
+          "flex items-center justify-center size-16 rounded-xl shrink-0",
           variant === "primary" && "bg-primary/10",
           variant === "secondary" && "bg-secondary/10",
           variant === "tertiary" && "bg-info/10"
         )}
         aria-hidden
       >
-        {icon}
+        <Icon className="size-8" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
         <h2 className="font-heading text-xl font-bold">{title}</h2>

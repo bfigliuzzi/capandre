@@ -1,14 +1,15 @@
 "use client";
 
+import { Timer, Turtle, Zap, type LucideIcon } from "lucide-react";
 import { DIFFICULTY_DESCRIPTIONS, DIFFICULTY_LABELS } from "@/lib/multiplication";
 import type { Difficulty } from "@/lib/multiplication";
 import { useRovingTabindex } from "@/hooks/use-roving-tabindex";
 import { cn } from "@/lib/utils";
 
-const DIFFICULTIES: { id: Difficulty; emoji: string }[] = [
-  { id: "basic", emoji: "🐢" },
-  { id: "paced", emoji: "⏱️" },
-  { id: "challenge", emoji: "⚡" },
+const DIFFICULTIES: { id: Difficulty; Icon: LucideIcon }[] = [
+  { id: "basic", Icon: Turtle },
+  { id: "paced", Icon: Timer },
+  { id: "challenge", Icon: Zap },
 ];
 
 export interface DifficultyCardsProps {
@@ -47,8 +48,8 @@ export function DifficultyCards({ value, onChange, labelId }: DifficultyCardsPro
             onKeyDown={itemProps.onKeyDown}
             className={cn("difficulty-card", active && "difficulty-card--active")}
           >
-            <div className="text-2xl shrink-0 w-12 text-center" aria-hidden="true">
-              {difficulty.emoji}
+            <div className="flex shrink-0 w-12 justify-center" aria-hidden="true">
+              <difficulty.Icon className="size-7" strokeWidth={1.75} />
             </div>
             <div className="flex-1">
               <div className="font-heading font-bold text-base">{DIFFICULTY_LABELS[difficulty.id]}</div>

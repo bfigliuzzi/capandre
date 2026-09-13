@@ -1,5 +1,6 @@
 "use client";
 
+import { Hand } from "lucide-react";
 import { useHasContent } from "@/lib/db";
 
 export function OnboardingMessage() {
@@ -9,7 +10,7 @@ export function OnboardingMessage() {
 
   return (
     <div className="rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-border p-6 text-center">
-      <div className="text-4xl mb-3" aria-hidden="true">👋</div>
+      <Hand className="size-10 mb-3 mx-auto text-primary" strokeWidth={1.5} aria-hidden="true" />
       <p className="font-heading text-xl font-bold mb-2">
         Bienvenue dans Capandre !
       </p>

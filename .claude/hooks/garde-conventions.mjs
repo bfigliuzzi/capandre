@@ -1,11 +1,18 @@
 #!/usr/bin/env node
-// PostToolUse (Edit|Write) — vérifie les conventions mécaniquement vérifiables
-// sur le fichier qui vient d'être écrit.
+// PostToolUse (Edit|Write) — applique les conventions mécaniquement vérifiables
+// au fichier qui vient d'être écrit. Toutes les règles sont BLOQUANTES : le
+// codebase les respecte intégralement (voir intent/DETTE-01-conventions/).
 //
-// Deux niveaux :
-//   bloquant  — règle sans exception dans le codebase aujourd'hui
-//   signalé   — règle avec de la dette existante : on avertit, on ne bloque pas
-// Les règles elles-mêmes sont écrites dans CLAUDE.md ; ce hook les rend déterministes.
+// Les règles elles-mêmes sont écrites dans CLAUDE.md et dans les skills
+// capandre-* ; ce hook les rend déterministes.
+//
+// Exception : un marqueur motivé lève une règle pour le paragraphe qu'il
+// introduit — sa propre ligne, puis les lignes suivantes jusqu'à la première
+// ligne vide :
+//   // couleur-en-dur: <raison>
+//   // emoji-ui: <raison>
+// Le marqueur exige une raison écrite : l'exception reste visible en revue au
+// lieu d'être cachée dans une liste d'exclusion.
 import { readFileSync } from "node:fs";
 import { relative, isAbsolute, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,7 +21,11 @@ const RACINE = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const SOURCES = /^(app|components|hooks|lib)\//;
 const EXT = /\.(ts|tsx|css)$/;
-const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u;
+
+// Plage large : plans emoji, symboles divers, dingbats, flèches et pictogrammes
+// techniques (U+2300-U+23FF couvre ⏱, que la première version de ce hook ratait).
+const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2300}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u;
+const COULEUR = /#[0-9a-fA-F]{6}\b|\boklch\(|\brgba?\(/;
 
 const brut = await new Promise((res) => {
   let d = "";
@@ -44,57 +55,70 @@ try {
 }
 
 const lignes = contenu.split("\n");
-const trouve = (predicat) =>
-  lignes.reduce((acc, l, i) => (predicat(l) ? [...acc, i + 1] : acc), []);
 
-const bloquants = [];
-const signales = [];
+/**
+ * Index des lignes couvertes par un marqueur : la ligne du marqueur, puis les
+ * suivantes jusqu'à la première ligne vide. Le marqueur porte donc sur le
+ * paragraphe qu'il introduit, ce qui couvre une valeur multiligne sans exiger
+ * un marqueur par ligne.
+ */
+function lignesExemptees(marqueur) {
+  const motif = new RegExp(`//\\s*${marqueur}\\s*:\\s*\\S`);
+  const couvertes = new Set();
+  lignes.forEach((ligne, i) => {
+    if (!motif.test(ligne)) return;
+    for (let j = i; j < lignes.length && lignes[j].trim() !== ""; j += 1) couvertes.add(j);
+  });
+  return couvertes;
+}
 
-// Bloquant — aucune occurrence dans le codebase, la règle tient sans exception.
-const xs = trouve((l) => /\btext-xs\b/.test(l));
+function infractions(predicat, marqueur) {
+  const exemptees = marqueur ? lignesExemptees(marqueur) : new Set();
+  const lignesFautives = [];
+  lignes.forEach((ligne, i) => {
+    if (predicat(ligne) && !exemptees.has(i)) lignesFautives.push(i + 1);
+  });
+  return lignesFautives;
+}
+
+const constats = [];
+
+const xs = infractions((l) => /\btext-xs\b/.test(l));
 if (xs.length) {
-  bloquants.push(
+  constats.push(
     `text-xs est interdit (${rel}:${xs.join(", ")}). Texte de base : text-base (16px). ` +
       `Annotations, aides et méta : text-sm (14px). Rien en dessous.`,
   );
 }
 
-// Signalé — dette existante dans le codebase, voir docs/dette-conventions.md.
+// app/globals.css définit les tokens : c'est le seul endroit où une couleur
+// littérale est à sa place.
 if (rel !== "app/globals.css") {
-  const durs = trouve((l) => /#[0-9a-fA-F]{6}\b/.test(l) || /oklch\(/.test(l));
+  const durs = infractions((l) => COULEUR.test(l), "couleur-en-dur");
   if (durs.length) {
-    signales.push(
+    constats.push(
       `Couleur en dur (${rel}:${durs.join(", ")}). Les couleurs passent par les tokens de ` +
-        `app/globals.css (voir docs/design-tokens.md), pas par une valeur littérale.`,
+        `app/globals.css — utilitaires bg-/text-/border- ou color-mix(in oklab, var(--token) N%, var(--card)). ` +
+        `Voir docs/design-tokens.md et la skill capandre-design-tokens. ` +
+        `Si la valeur sort vraiment du CSS (metadata theme-color), marque la ligne ` +
+        `avec « // couleur-en-dur: <raison> ».`,
     );
   }
 }
 
-const emo = trouve((l) => EMOJI.test(l));
+const emo = infractions((l) => EMOJI.test(l), "emoji-ui");
 if (emo.length) {
-  signales.push(
+  constats.push(
     `Emoji dans une source d'interface (${rel}:${emo.join(", ")}). ` +
-      `La règle du projet est de passer par lucide-react. Le codebase porte déjà cette dette ` +
-      `(voir docs/dette-conventions.md) : ne l'aggrave pas sans raison écrite dans plan.md.`,
+      `Les icônes viennent de lucide-react. Si l'icône est une donnée de domaine, ` +
+      `stocke un nom sémantique dans lib/ (voir BadgeIconName) et résous-le en composant ` +
+      `dans la couche présentation — lib/ ne dépend pas de React.`,
   );
 }
 
-if (bloquants.length) {
+if (constats.length) {
   process.stdout.write(
-    JSON.stringify({ decision: "block", reason: bloquants.join("\n") }),
-  );
-  process.exit(0);
-}
-
-if (signales.length) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "PostToolUse",
-        additionalContext: signales.join("\n"),
-      },
-      suppressOutput: true,
-    }),
+    JSON.stringify({ decision: "block", reason: constats.join("\n\n") }),
   );
 }
 process.exit(0);

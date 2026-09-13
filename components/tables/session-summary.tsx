@@ -2,12 +2,21 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { RotateCcw } from "lucide-react";
+import {
+  Flame,
+  HeartHandshake,
+  PartyPopper,
+  RotateCcw,
+  Sprout,
+  TrendingUp,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BadgeTile } from "@/components/tables/badge-tile";
 import { Confetti } from "@/components/tables/confetti";
 import { FactList } from "@/components/tables/fact-list";
-import { StarRating, starsLabel } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/star-rating";
 import type { RecordSessionResult } from "@/lib/db";
 import { getBadge, type SessionConfig, type SessionSummary as Summary } from "@/lib/multiplication";
 import { cn } from "@/lib/utils";
@@ -24,7 +33,7 @@ const NO_STARS_YET = "Continue, tes étoiles arrivent !";
 const NOTHING_TO_REVISIT = "Rien à retravailler, tout est bon !";
 
 interface SessionTier {
-  emoji: string;
+  Icon: LucideIcon;
   message: string;
   className: string;
 }
@@ -33,34 +42,34 @@ interface SessionTier {
 function getSessionTier(percentage: number): SessionTier {
   if (percentage >= 100) {
     return {
-      emoji: "🏆",
+      Icon: Trophy,
       message: "Sans faute ! Tu connais tes tables sur le bout des doigts !",
       className: "session-score--perfect",
     };
   }
   if (percentage >= 80) {
     return {
-      emoji: "🎉",
+      Icon: PartyPopper,
       message: "Super ! Tu y es presque, encore un petit effort !",
       className: "session-score--great",
     };
   }
   if (percentage >= 50) {
     return {
-      emoji: "💪",
+      Icon: TrendingUp,
       message: "Bien joué ! Tu progresses à chaque partie.",
       className: "session-score--good",
     };
   }
   if (percentage > 0) {
     return {
-      emoji: "🌱",
+      Icon: Sprout,
       message: "C'est un bon début ! Recommence pour t'entraîner.",
       className: "session-score--keep-going",
     };
   }
   return {
-    emoji: "🤗",
+    Icon: HeartHandshake,
     message: "Ce n'est pas grave ! Va voir la révision, puis réessaie.",
     className: "session-score--keep-going",
   };
@@ -134,9 +143,7 @@ export function SessionSummary({
 
       {/* --- Score et palier --- */}
       <div className={cn("session-score p-6 text-center", tier.className)}>
-        <div className="mb-2 text-5xl" aria-hidden="true">
-          {tier.emoji}
-        </div>
+        <tier.Icon className="mx-auto mb-2 size-12" strokeWidth={1.5} aria-hidden="true" />
         <h2
           ref={headingRef}
           tabIndex={-1}
@@ -150,7 +157,8 @@ export function SessionSummary({
         <p className="mt-1 text-base text-muted-foreground">{summary.encouragement}</p>
         {summary.bestStreak >= 2 && (
           <p className="mt-3 font-heading text-base font-bold text-foreground">
-            Ta meilleure série&nbsp;: {summary.bestStreak} <span aria-hidden="true">🔥</span>
+            Ta meilleure série&nbsp;: {summary.bestStreak}{" "}
+            <Flame className="inline size-5 align-text-bottom text-warning" strokeWidth={2} aria-hidden="true" />
           </p>
         )}
       </div>

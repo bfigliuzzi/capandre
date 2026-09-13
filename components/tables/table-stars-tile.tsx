@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { StarRating, starsLabel } from "@/components/tables/star-rating";
+import { StarRating, starsLabel } from "@/components/star-rating";
 import { cn } from "@/lib/utils";
 
 interface TableStarsTileProps {

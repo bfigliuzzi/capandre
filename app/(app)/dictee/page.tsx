@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ViewTransition } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { NotebookPen, Plus } from "lucide-react";
 import { useDictations, useDictationMutations } from "@/lib/db";
 import { ContentItem } from "@/components/content-item";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -38,9 +38,7 @@ export default function DicteeListPage() {
           </div>
         ) : dictations.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <span className="text-4xl" aria-hidden>
-              📝
-            </span>
+            <NotebookPen className="size-10 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             <p className="text-muted-foreground">
               Aucune dictée pour le moment.
             </p>
@@ -51,7 +49,7 @@ export default function DicteeListPage() {
               <ViewTransition key={dictation.id}>
                 <ContentItem
                   href={`/dictee/${dictation.id}`}
-                  icon="📝"
+                  icon={NotebookPen}
                   title={dictation.title}
                   meta={`${dictation.words.length} mot${dictation.words.length > 1 ? "s" : ""} — ${dictation.mode === "words" ? "Mots isolés" : "Texte complet"}`}
                   variant="primary"

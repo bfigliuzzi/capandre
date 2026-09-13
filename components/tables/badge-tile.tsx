@@ -1,8 +1,43 @@
 "use client";
 
-import { Lock } from "lucide-react";
-import type { BadgeDefinition } from "@/lib/multiplication";
+import {
+  Brain,
+  Calculator,
+  CalendarCheck,
+  Crown,
+  Flame,
+  Footprints,
+  Library,
+  Lock,
+  Percent,
+  Sparkles,
+  Sprout,
+  Star,
+  Target,
+  Timer,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import type { BadgeDefinition, BadgeIconName } from "@/lib/multiplication";
 import { cn } from "@/lib/utils";
+
+/** Résolution du nom d'icône du domaine vers le composant de rendu. */
+const BADGE_ICONS: Record<BadgeIconName, LucideIcon> = {
+  sprout: Sprout,
+  flame: Flame,
+  zap: Zap,
+  target: Target,
+  "calendar-check": CalendarCheck,
+  footprints: Footprints,
+  calculator: Calculator,
+  percent: Percent,
+  timer: Timer,
+  sparkles: Sparkles,
+  library: Library,
+  brain: Brain,
+  star: Star,
+  crown: Crown,
+};
 
 interface BadgeTileProps {
   definition: BadgeDefinition;
@@ -13,6 +48,7 @@ interface BadgeTileProps {
 /** Tuile de trophée : colorée débloquée, grisée + cadenas verrouillée. */
 export function BadgeTile({ definition, unlockedAt, highlighted = false }: BadgeTileProps) {
   const isUnlocked = unlockedAt !== null;
+  const Icon = BADGE_ICONS[definition.icon];
 
   return (
     <div
@@ -26,9 +62,7 @@ export function BadgeTile({ definition, unlockedAt, highlighted = false }: Badge
         : { role: "group", "aria-label": `Trophée à débloquer : ${definition.title}. ${definition.description}` })}
     >
       {isUnlocked ? (
-        <span className="text-[2rem]" aria-hidden="true">
-          {definition.emoji}
-        </span>
+        <Icon className="size-8 text-warning" strokeWidth={1.75} aria-hidden="true" />
       ) : (
         <Lock className="size-8 text-muted-foreground" aria-hidden="true" />
       )}

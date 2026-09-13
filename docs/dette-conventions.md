@@ -1,49 +1,43 @@
 # Dette de conventions
 
 Écarts entre les règles écrites (`CLAUDE.md`, skills `capandre-*`) et l'état réel du
-codebase, relevés au moment de la mise en place du cycle AI-native.
+codebase.
 
-Le hook `.claude/hooks/garde-conventions.mjs` **signale** ces règles sans bloquer,
-précisément parce que la dette existe. Règle de conduite : **ne pas aggraver**.
-Tout nouveau code respecte la politique. La résorption passe par un `intent.md` dédié.
+Une règle n'entre en mode **bloquant** dans `.claude/hooks/garde-conventions.mjs` que
+lorsque le codebase la respecte intégralement. Une règle listée ici est donc une règle
+qui n'est pas encore tenue — et c'est une anomalie à résorber, pas un état acceptable.
 
-## 1. Emoji dans l'interface
+## Résorbé
 
-**Règle** : pas d'emoji dans l'interface, toujours `lucide-react`.
-**État** : 21 emoji distincts dans 10 fichiers, dont des usages structurants
-(`components/tables/session-summary.tsx` porte un champ `emoji` dans ses données,
-`app/(app)/page.tsx` passe `icon="📝"` à ses cartes de module).
+| Règle | Résorbée par | Statut |
+|---|---|---|
+| Pas d'emoji dans l'interface | `intent/DETTE-01-conventions/` | **bloquante** |
+| Pas de couleur en dur | `intent/DETTE-01-conventions/` | **bloquante** |
+| Pas de `text-xs` | jamais violée | **bloquante** |
 
-| Fichier | Nature |
-|---------|--------|
-| `app/(app)/page.tsx` | Icônes de cartes de module |
-| `app/(app)/dictee/page.tsx`, `app/(app)/poesie/page.tsx`, `app/(app)/poesie/[id]/page.tsx` | Icônes d'écran |
-| `components/onboarding-message.tsx` | Message d'accueil |
-| `components/dictee-correction.tsx`, `components/unsaved-changes-banner.tsx` | Retours visuels |
-| `components/tables/session-summary.tsx`, `streak-badge.tsx`, `difficulty-cards.tsx` | Récompenses et paliers |
+DETTE-01 a remplacé 35 emoji répartis dans 17 fichiers par des icônes `lucide-react`,
+et sorti 19 couleurs littérales vers les tokens de `app/globals.css`. Au passage :
 
-**Note** : la règle mérite peut-être d'être révisée plutôt que la dette résorbée. Les emoji
-de récompense s'adressent à des enfants de 6 à 11 ans et `session-summary.tsx` les marque
-déjà `aria-hidden="true"`. C'est une décision produit — elle passe par un `intent.md`,
-pas par une correction silencieuse.
+- `lib/multiplication/badges.ts` stocke désormais un `BadgeIconName` sémantique
+  (`"crown"`, `"sprout"`…) au lieu d'un emoji. La couche pure reste sans dépendance React ;
+  `components/tables/badge-tile.tsx` résout le nom en composant.
+- `.correction-score--*` et `.correction-letter--*` étaient documentées dans `globals.css`
+  comme cassées en mode sombre. Passées en `color-mix` sur les tokens sémantiques, elles
+  s'adaptent seules : les overrides `.dark` ont disparu.
+- Le trio ambre dupliqué dans 4 composants est devenu une classe `.callout-warning`.
+- Contrastes recalculés après passage aux tokens : 7,3:1 à 8,6:1 en clair comme en sombre
+  (WCAG AA exige 4,5:1).
 
-## 2. Couleurs en dur
+### Exception en vigueur
 
-**Règle** : couleurs via les tokens de `app/globals.css`, pas de littéral.
-**État** : littéraux hexadécimaux dans 5 fichiers.
+`app/layout.tsx` — les metadata `theme-color` partent dans une balise `<meta>` lue par le
+navigateur, hors CSS : elles ne peuvent pas être des variables. La ligne porte un marqueur
+motivé `// couleur-en-dur: …`, seule forme d'exception acceptée par le hook.
 
-| Fichier | Valeurs |
-|---------|---------|
-| `app/layout.tsx:22-23` | `#ffffff`, `#1e1e2e` (metadata `theme-color`) |
-| `components/dictee-correction.tsx:133-134` | `#10B981`, `#EF4444`, `#FEF2F2`, un `oklch()` littéral |
-| `components/unsaved-changes-banner.tsx:9` | `#FEF3C7`, `#F59E0B`, `#92400E` |
-| `components/dictee-exercise.tsx:280,347` | `#FEF3C7`, `#F59E0B`, `#92400E` |
-| `components/dictation-form.tsx:246` | `#FEF3C7`, `#F59E0B`, `#92400E` |
+## Reste à traiter
 
-Le trio `#FEF3C7` / `#F59E0B` / `#92400E` revient dans trois fichiers : c'est un token
-« avertissement » qui manque à `app/globals.css`. Résorption la plus rentable.
-
-## 3. Playwright annoncé, absent
+### Playwright annoncé, absent
 
 `docs/tech-stack.md` liste Playwright pour les tests end-to-end. Aucun test e2e n'existe,
 la dépendance n'est pas installée. Soit on l'ajoute, soit on retire la ligne — pas d'entre-deux.
+Aucune règle ni aucun hook ne dépend de ce point.

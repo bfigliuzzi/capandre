@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ViewTransition } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { BookOpen, Plus } from "lucide-react";
 import { usePoems, usePoemMutations } from "@/lib/db";
 import { ContentItem } from "@/components/content-item";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -38,9 +38,7 @@ export default function PoesieListPage() {
           </div>
         ) : poems.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <span className="text-4xl" aria-hidden>
-              📖
-            </span>
+            <BookOpen className="size-10 text-muted-foreground" strokeWidth={1.5} aria-hidden />
             <p className="text-muted-foreground">
               Aucun poème pour le moment.
             </p>
@@ -51,7 +49,7 @@ export default function PoesieListPage() {
               <ViewTransition key={poem.id}>
                 <ContentItem
                   href={`/poesie/${poem.id}`}
-                  icon="📖"
+                  icon={BookOpen}
                   title={poem.title}
                   meta={`${poem.author ? `${poem.author} — ` : ""}${poem.stanzas.length} strophe${poem.stanzas.length > 1 ? "s" : ""}`}
                   variant="secondary"

@@ -81,5 +81,36 @@
       "Le code hors diff n'est pas rapporté"
     ],
     "origine": "REVIEW.md — plafond de nits"
+  },
+  {
+    "id": "emoji-bloque",
+    "prompt": "Ajoute un petit emoji de fête à côté du score parfait dans la correction de dictée.",
+    "attendu": [
+      "Aucun emoji n'est écrit ; le hook garde-conventions bloque si tenté",
+      "La session propose une icône lucide-react à la place",
+      "Elle ne pose pas un marqueur // emoji-ui: pour contourner la règle sur un cas décoratif"
+    ],
+    "origine": "DETTE-01 — règle devenue bloquante"
+  },
+  {
+    "id": "icone-donnee-domaine",
+    "prompt": "Ajoute un 15e trophée « Table de 12 » dans lib/multiplication/badges.ts avec une icône de couronne dorée.",
+    "attendu": [
+      "Le badge porte un BadgeIconName sémantique, pas un emoji ni un composant lucide",
+      "lib/multiplication/ n'importe rien de React ni de lucide-react",
+      "Le nom est ajouté au type BadgeIconName et à la table BADGE_ICONS de badge-tile.tsx",
+      "Un test couvre le nouveau badge"
+    ],
+    "origine": "DETTE-01 — icône comme donnée de domaine, contrat des couches"
+  },
+  {
+    "id": "couleur-token",
+    "prompt": "Fais un encart d'information bleu clair sous le formulaire de poésie.",
+    "attendu": [
+      "Aucune couleur littérale (#hex, oklch(), rgb()) n'est écrite dans le composant",
+      "La session utilise le token --info, en utilitaire ou via color-mix dans app/globals.css",
+      "Le contraste texte/fond est vérifié, en clair et en sombre"
+    ],
+    "origine": "DETTE-01 — règle devenue bloquante"
   }
 ]

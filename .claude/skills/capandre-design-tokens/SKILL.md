@@ -23,12 +23,34 @@ la classe `.dark`). Spécification lisible : `docs/design-tokens.md`, `docs/desi
 6. **Icônes** : `lucide-react` uniquement. Pas d'emoji dans l'interface.
 7. **CSS custom minimal** : privilégier les utilitaires plutôt que des overrides.
 
-## Dette existante
+## Application
 
-Le codebase porte encore des couleurs en dur et des emoji d'interface, hérités d'avant
-cette politique — inventaire dans `docs/dette-conventions.md`. Le hook
-`garde-conventions.mjs` les signale sans bloquer. Règle de conduite : **ne pas aggraver**.
-Tout nouveau code respecte la politique ; la résorption de la dette passe par un `intent.md`.
+Ces règles sont **bloquantes** : `.claude/hooks/garde-conventions.mjs` refuse une écriture
+qui introduit un `text-xs`, un emoji ou une couleur littérale dans `app/`, `components/`,
+`hooks/` ou `lib/`. Le codebase les respecte intégralement depuis `intent/DETTE-01-conventions/`.
+
+Une exception réellement justifiée — une valeur qui sort du pipeline CSS, comme les metadata
+`theme-color` — se marque sur le paragraphe concerné :
+
+```ts
+// couleur-en-dur: metadata theme-color, lue par le navigateur hors CSS
+"theme-color-light": "#ffffff",
+```
+
+Le marqueur exige une raison écrite. Sans raison, pas d'exception.
+
+## Icône comme donnée de domaine
+
+Quand l'icône est portée par le modèle et non par le composant, `lib/` stocke un **nom
+sémantique** et la couche présentation le résout. `BadgeIconName` dans
+`lib/multiplication/badges.ts` est la référence : `lib/` reste du TypeScript pur, sans
+dépendance React, et le catalogue d'icônes vit dans `components/tables/badge-tile.tsx`.
+
+## Composants existants
+
+Avant d'écrire un rendu, vérifier qu'il n'existe pas : `StarRating`
+(`components/star-rating.tsx`) rend des étoiles pleines et vides avec `role="img"` et un
+libellé complet — jamais la couleur seule.
 
 ## Responsive
 

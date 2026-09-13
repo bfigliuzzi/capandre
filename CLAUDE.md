@@ -57,7 +57,9 @@ Détail complet : `docs/architecture.md`.
 - Pas de code commenté : l'historique git suffit.
 - Texte de base 16px (`text-base`), annotations 14px (`text-sm`). **Jamais `text-xs`.**
 - Labels de formulaire : `font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider`.
-- **Pas d'emoji dans l'interface** : toujours `lucide-react`.
+- **Pas d'emoji dans l'interface** : toujours `lucide-react`. Si l'icône est une donnée de
+  domaine, `lib/` stocke un nom sémantique (voir `BadgeIconName`) et la couche présentation
+  le résout en composant — `lib/` ne dépend pas de React.
 - Couleurs, typo et radius via les tokens de `app/globals.css`. Pas de valeur en dur.
 - Accessibilité WCAG AA : HTML sémantique, `aria-invalid` + `aria-describedby` + `role="alert"`
   sur les erreurs, roving tabindex sur les radiogroups, `role="status"` sur les zones dynamiques,
@@ -70,8 +72,8 @@ Détail complet : `docs/architecture.md`.
 > Règle de tenue : quand Claude fait deux fois la même erreur, la correction arrive ici.
 
 - Écrire du code Next.js de mémoire au lieu de lire `node_modules/next/dist/docs/`.
-- Utiliser `text-xs` — interdit partout, un hook le bloque.
-- Mettre un emoji dans un composant au lieu d'une icône `lucide-react`.
+- Dupliquer un composant qui existe déjà : `StarRating` (`components/star-rating.tsx`) rend
+  les étoiles pleines **et** vides avec `role="img"` — ne pas réécrire un rendu d'étoiles.
 - Découper les mots de dictée par espaces : `parseWords` découpe par **virgule ou retour
   ligne uniquement** (« le coq, les oies » → `["le coq", "les oies"]`).
 - Importer React ou `lib/db` depuis `lib/multiplication/` : ce moteur est du TypeScript pur.
@@ -79,5 +81,10 @@ Détail complet : `docs/architecture.md`.
 ## Garde-fous automatiques
 
 `.claude/settings.json` branche des hooks déterministes (`.claude/hooks/`) : chemins protégés,
-conventions typographiques, rappel de vérification. Un hook qui bloque explique pourquoi.
+conventions, rappel de vérification. Un hook qui bloque explique pourquoi.
+
+`garde-conventions.mjs` **bloque** `text-xs`, les emoji et les couleurs littérales dans
+`app/`, `components/`, `hooks/` et `lib/`. Une exception vraiment justifiée se marque sur
+le paragraphe concerné — `// couleur-en-dur: <raison>` ou `// emoji-ui: <raison>` — ce qui
+la rend visible en revue. Sans raison écrite, pas d'exception.
 Les skills `capandre-*` de `.claude/skills/` portent les politiques (a11y, tokens, logique métier).

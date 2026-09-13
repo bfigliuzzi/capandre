@@ -475,26 +475,47 @@
   }
 }
 
-/* --- Correction: Score Gradients --- */
+/* --- Correction: Score Gradients ---
+   Construits sur les tokens sémantiques via color-mix : l'aspect suit
+   automatiquement le mode clair et le mode sombre. Même motif que
+   .session-score--* plus bas. --- */
 
 .correction-score--perfect {
-  background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-  border-color: oklch(0.564 0.127 151.581);
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--success) 20%, var(--card)),
+    color-mix(in oklab, var(--success) 8%, var(--card)));
+  border-color: color-mix(in oklab, var(--success) 45%, transparent);
 }
 
 .correction-score--great {
-  background: linear-gradient(135deg, oklch(0.904 0.025 278.344), #DBEAFE);
-  border-color: oklch(0.550 0.134 273.742);
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 20%, var(--card)),
+    color-mix(in oklab, var(--info) 10%, var(--card)));
+  border-color: color-mix(in oklab, var(--primary) 45%, transparent);
 }
 
 .correction-score--good {
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border-color: oklch(0.662 0.137 75.820);
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--warning) 22%, var(--card)),
+    color-mix(in oklab, var(--warning) 8%, var(--card)));
+  border-color: color-mix(in oklab, var(--warning) 45%, transparent);
 }
 
 .correction-score--keep-going {
-  background: linear-gradient(135deg, oklch(0.943 0.021 43.852), #FEE2E2);
-  border-color: oklch(0.680 0.155 42.368);
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--chart-2) 20%, var(--card)),
+    color-mix(in oklab, var(--secondary) 40%, var(--card)));
+  border-color: color-mix(in oklab, var(--chart-2) 45%, transparent);
+}
+
+/* --- Encart d'avertissement ---
+   Remplace le trio ambre en dur qui était dupliqué dans
+   unsaved-changes-banner, dictee-exercise (x2) et dictation-form. --- */
+
+.callout-warning {
+  background-color: color-mix(in oklab, var(--warning) 18%, var(--card));
+  border-color: color-mix(in oklab, var(--warning) 55%, transparent);
+  color: color-mix(in oklab, var(--warning) 40%, var(--foreground));
 }
 
 /* --- Correction: Letter Feedback --- */
@@ -517,14 +538,16 @@
   background-color: var(--muted);
 }
 
+/* Le mélange porte sur --foreground : la teinte s'inverse d'elle-même entre
+   clair et sombre, sans bloc .dark dédié. */
 .correction-letter--correct {
-  color: #065F46;
-  background-color: #D1FAE5;
+  color: color-mix(in oklab, var(--success) 45%, var(--foreground));
+  background-color: color-mix(in oklab, var(--success) 18%, var(--card));
 }
 
 .correction-letter--wrong {
-  color: #991B1B;
-  background-color: #FEE2E2;
+  color: color-mix(in oklab, var(--destructive) 45%, var(--foreground));
+  background-color: color-mix(in oklab, var(--destructive) 18%, var(--card));
   gap: 0.125rem;
   padding: 0 0.375rem;
 }
@@ -541,16 +564,6 @@
 
 .correction-letter-expected {
   font-weight: 800;
-}
-
-.dark .correction-letter--correct {
-  color: #6EE7B7;
-  background-color: #064E3B;
-}
-
-.dark .correction-letter--wrong {
-  color: #FCA5A5;
-  background-color: #7F1D1D;
 }
 
 /* --- Reduced motion for exercise --- */

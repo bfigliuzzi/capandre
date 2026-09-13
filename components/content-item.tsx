@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { ChevronRight, Pencil, Trash2, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ContentItemProps {
   href: string;
-  icon: string;
+  icon: LucideIcon;
   title: string;
   meta: string;
   variant?: "primary" | "secondary";
@@ -16,7 +16,7 @@ interface ContentItemProps {
 
 export function ContentItem({
   href,
-  icon,
+  icon: Icon,
   title,
   meta,
   variant = "primary",
@@ -29,12 +29,12 @@ export function ContentItem({
     <>
       <div
         className={cn(
-          "flex items-center justify-center size-11 rounded-lg text-xl shrink-0",
+          "flex items-center justify-center size-11 rounded-lg shrink-0",
           variant === "primary" ? "bg-primary/10" : "bg-secondary/10"
         )}
         aria-hidden
       >
-        {icon}
+        <Icon className="size-5" strokeWidth={1.75} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-heading font-bold truncate">{title}</p>

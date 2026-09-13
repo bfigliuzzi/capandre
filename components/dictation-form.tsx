@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { CircleX, Eye, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -243,8 +244,8 @@ export function DictationForm(props: DictationFormProps) {
 
         {/* Duplicate warning */}
         {dictationMode === "words" && duplicates.size > 0 && (
-          <div className="flex items-start gap-2.5 p-4 bg-[#FEF3C7] border border-[#F59E0B] rounded-lg text-sm text-[#92400E] leading-normal" role="status">
-            <span className="shrink-0 text-lg leading-none" aria-hidden="true">⚠️</span>
+          <div className="callout-warning flex items-start gap-2.5 p-4 border rounded-lg text-sm leading-normal" role="status">
+            <TriangleAlert className="shrink-0 size-5" strokeWidth={2} aria-hidden="true" />
             <span>Des mots en double ont été détectés (surlignage jaune).</span>
           </div>
         )}
@@ -254,7 +255,7 @@ export function DictationForm(props: DictationFormProps) {
       {content.trim() && (
         <div className="flex flex-col gap-3">
           <div className="font-heading text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <span aria-hidden="true">👁️</span>
+            <Eye className="size-4" strokeWidth={2} aria-hidden="true" />
             Aperçu {dictationMode === "words" ? "des mots" : "du texte"}
           </div>
           <div className="p-4 bg-muted/50 border border-border rounded-lg">
@@ -270,7 +271,7 @@ export function DictationForm(props: DictationFormProps) {
           className="flex items-start gap-2.5 p-4 bg-destructive/10 border border-destructive rounded-lg text-sm text-destructive leading-normal"
           role="alert"
         >
-          <span className="shrink-0 text-lg leading-none" aria-hidden="true">❌</span>
+          <CircleX className="shrink-0 size-5" strokeWidth={2} aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

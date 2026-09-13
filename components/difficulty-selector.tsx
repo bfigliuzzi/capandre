@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { StarRating, starsLabel } from "@/components/star-rating";
 import { cn } from "@/lib/utils";
 
+// `stars` est un compte, pas un libellé : le rendu en dérive.
 const levels = [
-  { id: "discovery", label: "Découverte", stars: "⭐" },
-  { id: "learning", label: "Apprentissage", stars: "⭐⭐" },
-  { id: "mastery", label: "Maîtrise", stars: "⭐⭐⭐" },
+  { id: "discovery", label: "Découverte", stars: 1 },
+  { id: "learning", label: "Apprentissage", stars: 2 },
+  { id: "mastery", label: "Maîtrise", stars: 3 },
 ] as const;
 
 interface DifficultySelectorProps {
@@ -61,7 +63,9 @@ export function DifficultySelector({ defaultLevel = "discovery", onSelect }: Dif
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          <span className="block text-base" aria-hidden>{level.stars}</span>
+          <span className="flex justify-center">
+            <StarRating value={level.stars} size="sm" label={`${level.label} : ${starsLabel(level.stars)}`} />
+          </span>
           <span className="block text-base mt-0.5">{level.label}</span>
         </button>
       ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface WordPreviewProps {
@@ -31,7 +32,7 @@ export function WordPreview({ words, duplicates }: WordPreviewProps) {
                 : "bg-primary/10 text-primary border border-primary/20"
             )}
           >
-            {duplicates.has(word) && <span className="mr-1" aria-hidden="true">⚠</span>}
+            {duplicates.has(word) && <TriangleAlert className="mr-1 inline size-4 align-text-bottom" strokeWidth={2} aria-hidden="true" />}
             {word}
             {duplicates.has(word) && <span className="sr-only">(doublon)</span>}
           </span>
