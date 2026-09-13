@@ -16,7 +16,8 @@ const PROTEGES = [
   {
     test: (p) => p.startsWith(".agents/skills/") || p === "skills-lock.json",
     raison:
-      "Les skills de .agents/skills/ sont importées depuis vercel-labs/agent-skills et verrouillées par skills-lock.json. " +
+      "Les skills de .agents/skills/ sont importées (vercel-labs/agent-skills, mattpocock/skills) et " +
+      "verrouillées par skills-lock.json : elles se mettent à jour via `npx skills@latest`, pas à la main. " +
       "Une politique propre au projet va dans .claude/skills/capandre-*/SKILL.md.",
   },
   {
