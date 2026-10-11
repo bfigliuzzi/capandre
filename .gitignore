@@ -42,3 +42,6 @@ next-env.d.ts
 
 # evals (sorties de collecte, non versionnées)
 /evals/sorties/
+
+# cache des sources du dictionnaire (scripts/dictionnaire)
+/.cache/
