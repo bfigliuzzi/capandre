@@ -37,7 +37,18 @@ export { compareArticles, compareHeadwords } from "./collation";
 export { paginate } from "./pagination";
 
 export type { GoToPageResult } from "./navigation";
-export { firstPageOfLetter, letterOf, lettersWithArticles, pageOfHeadword, parseGoToPage } from "./navigation";
+export {
+  firstPageOfLetter,
+  letterOf,
+  lettersWithArticles,
+  pageOfHeadword,
+  parseGoToPage,
+  spreadOf,
+  turnPage,
+} from "./navigation";
+
+export type { NatureLabel } from "./format";
+export { natureLabel, pageAnnouncement, pageTitle } from "./format";
 
 export type { GeneratorContext } from "./questions";
 export { eligibleCounts, generateQuestion, hasQuizSenses } from "./questions";
@@ -55,3 +66,5 @@ export {
 
 export type { ValidationResult } from "./validate";
 export { validateDictionaryFile } from "./validate";
+
+export { SKILLS_PARAM, encodeSkills, parseSkills } from "./skills-param";

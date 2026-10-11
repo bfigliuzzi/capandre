@@ -4,7 +4,7 @@ import type { CapandreDB } from "./schema";
 import { seedDatabase } from "./seed";
 
 const DB_NAME = "capandre";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 let dbPromise: Promise<IDBPDatabase<CapandreDB>> | null = null;
 
@@ -82,6 +82,14 @@ export function getDB(): Promise<IDBPDatabase<CapandreDB>> {
             db.createObjectStore("settings", { keyPath: "id" });
           }
         }
+
+        // v4 → v5 : store du module Dictionnaire. Purement additive, comme la v4.
+        if (oldVersion < 5) {
+          const storeNames = db.objectStoreNames as unknown as DOMStringList;
+          if (!storeNames.contains("dictionaryPages")) {
+            db.createObjectStore("dictionaryPages", { keyPath: "number" });
+          }
+        }
       },
     }).then(async (db) => {
       await seedDatabase(db);
@@ -89,4 +97,12 @@ export function getDB(): Promise<IDBPDatabase<CapandreDB>> {
     });
   }
   return dbPromise;
+}
+
+/** Ferme la connexion et oublie le cache : chaque test d'écran repart d'une base neuve. */
+export async function closeDB(): Promise<void> {
+  if (!dbPromise) return;
+  const pending = dbPromise;
+  dbPromise = null;
+  (await pending.catch(() => null))?.close();
 }

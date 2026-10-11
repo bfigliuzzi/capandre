@@ -38,3 +38,14 @@ export function parseGoToPage(input: string, totalPages: number): GoToPageResult
   if (page < 1 || page > totalPages) return { ok: false, error: outOfRange };
   return { ok: true, page };
 }
+
+/** Pages affichées côte à côte : paire à gauche, impaire à droite ; 0 est la couverture (R10). */
+export function spreadOf(page: number, totalPages: number): readonly [number, number | null] {
+  const left = page % 2 === 0 ? page : page - 1;
+  return [left, left + 1 <= totalPages ? left + 1 : null];
+}
+
+/** Page affichée après avoir tourné de `step` pages (négatif : en arrière), bornée à [0, total]. */
+export function turnPage(page: number, step: number, totalPages: number): number {
+  return Math.min(Math.max(page + step, 0), totalPages);
+}

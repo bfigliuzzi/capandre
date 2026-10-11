@@ -19,7 +19,7 @@ export type {
   CapandreDB,
 } from "./schema";
 
-export { getDB } from "./database";
+export { closeDB, getDB } from "./database";
 
 export {
   getAll,
@@ -62,3 +62,7 @@ export {
   useMultiplicationMutations,
   useSettings,
 } from "./multiplication-hooks";
+
+export { installDictionary, installedDictionaryVersion, loadDictionary } from "./dictionary-operations";
+export { DICTIONARY_URL, useDictionary } from "./dictionary-hooks";
+export type { DictionaryState } from "./dictionary-hooks";

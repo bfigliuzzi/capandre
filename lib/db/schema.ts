@@ -1,8 +1,9 @@
 import type { DBSchema } from "idb";
+import type { DictionaryPage } from "../dictionnaire/types";
 
 // --- Domain entities ---
 
-export type ModuleType = "dictation" | "poem" | "multiplication";
+export type ModuleType = "dictation" | "poem" | "multiplication" | "dictionary";
 
 export interface Module {
   id: string;
@@ -116,6 +117,8 @@ export interface AppSettings {
   id: string; // "app"
   soundEnabled: boolean;
   lastSessionConfig: MultiplicationSessionConfig | null;
+  /** Version du fichier du dictionnaire copiée en base ; absente tant qu'il n'est pas copié. */
+  dictionaryVersion?: number;
 }
 
 // --- IndexedDB schema for idb ---
@@ -157,5 +160,10 @@ export interface CapandreDB extends DBSchema {
   settings: {
     key: string;
     value: AppSettings;
+  };
+  /** Une page du dictionnaire par enregistrement, clé = numéro de page. */
+  dictionaryPages: {
+    key: number;
+    value: DictionaryPage;
   };
 }

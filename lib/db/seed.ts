@@ -9,9 +9,10 @@ const MODULES: Module[] = [
     name: "Tables de multiplication",
     type: "multiplication",
   },
+  { id: "mod-dictionary", name: "Dictionnaire", type: "dictionary" },
 ];
 
-// Aucun Level pour mod-multiplication : la difficulté d'une session
+// Aucun Level pour mod-multiplication ni mod-dictionary : la difficulté d'une session
 // (De base / Cadencé / Défi) est un paramètre de session, pas un contenu
 // créé par le parent.
 

@@ -713,3 +713,14 @@
      discrète en 12 paliers au lieu d'un mouvement continu. */
   .mult-timer-fill { animation-timing-function: steps(12, end) !important; }
 }
+
+/* --- Dictionnaire : page tournée --- */
+@keyframes dico-page-turn {
+  from { opacity: 0; transform: translateX(var(--dico-turn-from, 2rem)); }
+  to { opacity: 1; transform: none; }
+}
+.dico-page-turn { animation: dico-page-turn 260ms ease-out both; }
+.dico-page-turn[data-direction="back"] { --dico-turn-from: -2rem; }
+@media (prefers-reduced-motion: reduce) {
+  .dico-page-turn { animation: none !important; }
+}

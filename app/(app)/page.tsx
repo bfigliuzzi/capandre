@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Calculator, NotebookPen } from "lucide-react";
+import { BookA, BookOpen, Calculator, NotebookPen } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModuleCard } from "@/components/module-card";
 import { OnboardingMessage } from "@/components/onboarding-message";
@@ -47,6 +47,13 @@ export default function HomePage() {
             title="Tables de multiplication"
             description="Révise tes tables, gagne des étoiles et débloque des trophées !"
             variant="tertiary"
+          />
+          <ModuleCard
+            href="/dictionnaire"
+            icon={BookA}
+            title="Dictionnaire"
+            description="Apprends à chercher un mot et à lire un article de dictionnaire"
+            variant="primary"
           />
         </div>
       </div>

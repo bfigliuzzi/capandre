@@ -21,7 +21,7 @@ import type { SessionSummary } from "../multiplication";
 
 const SETTINGS_ID = "app";
 
-function defaultSettings(): AppSettings {
+export function defaultSettings(): AppSettings {
   return { id: SETTINGS_ID, soundEnabled: true, lastSessionConfig: null };
 }
 
