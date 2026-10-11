@@ -77,6 +77,17 @@ describe("toArticle — filtres d'un article (R28)", () => {
     });
   });
 
+  it("n'accepte comme phrase de question qu'une vraie phrase : 4 mots au moins et un point final", () => {
+    const article = toArticle(
+      candidate([
+        sense("miroir", ["Elle se regarde dans la glace.", "Glace de poche.", "Une glace"]),
+        sense("eau gelée", ["Le lac est gelé.", "Les enfants glissent sur la glace !"]),
+      ]),
+    );
+    expect(article?.senses[0].quizExample).toBeUndefined();
+    expect(article?.senses[1].quizExample).toBe("Les enfants glissent sur la glace !");
+  });
+
   it("ignore un exemple qui ne contient aucune lettre", () => {
     const article = toArticle(candidate([sense("miroir", ["'''''''", "Elle se regarde dans la glace."])]));
     expect(article?.senses[0].example).toBe("Elle se regarde dans la glace.");

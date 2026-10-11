@@ -6,6 +6,8 @@ export const MAX_SENSES = 3;
 /** Un exemple court compte moins de 15 mots (cadrage). */
 export const MAX_EXAMPLE_WORDS = 14;
 export const MAX_RELATED_WORDS = 5;
+/** Une phrase de question est une vraie phrase : assez de mots, et une ponctuation finale. */
+export const MIN_QUIZ_WORDS = 4;
 
 /** Mots de la liste, du plus fréquent au moins fréquent, sans exclusion ni nom propre. */
 export function selectLemmas(lemmas: readonly Lemma[], exclusions: ReadonlySet<string>): Lemma[] {
@@ -24,10 +26,15 @@ function wordCount(sentence: string): number {
   return sentence.split(/\s+/).filter(Boolean).length;
 }
 
+function isSentence(text: string): boolean {
+  return wordCount(text) >= MIN_QUIZ_WORDS && /[.!?…»]$/.test(text);
+}
+
 function toSense(candidate: CandidateSense): Sense {
-  const [example, quizExample] = candidate.examples
+  const [example, ...others] = candidate.examples
     .map((e) => e.trim())
     .filter((e) => /\p{L}/u.test(e) && wordCount(e) <= MAX_EXAMPLE_WORDS);
+  const quizExample = others.find(isSentence);
   return {
     definition: candidate.definition.trim(),
     ...(example ? { example } : {}),
