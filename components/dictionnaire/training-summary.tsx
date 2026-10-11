@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { StarRating, starsLabel } from "@/components/star-rating";
 import { Button } from "@/components/ui/button";
 import { starsFor } from "@/lib/dictionnaire";
@@ -14,11 +15,13 @@ interface TrainingSummaryProps {
 /** Fin de l'entraînement : bonnes réponses et étoiles (R25). Rien n'est enregistré (R26). */
 export function TrainingSummary({ score, total, onRestart }: TrainingSummaryProps) {
   const stars = starsFor(score);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => headingRef.current?.focus(), []);
   const answers = `${score} bonne${score > 1 ? "s" : ""} réponse${score > 1 ? "s" : ""}`;
 
   return (
     <section aria-labelledby="dico-resume" className="mx-auto flex max-w-prose flex-col items-center gap-4 text-center">
-      <h2 id="dico-resume" tabIndex={-1} className="font-heading text-2xl font-bold">
+      <h2 id="dico-resume" ref={headingRef} tabIndex={-1} className="font-heading text-2xl font-bold focus-visible:outline-none">
         Entraînement terminé
       </h2>
       <StarRating value={stars} size="lg" animated label={starsLabel(stars)} />

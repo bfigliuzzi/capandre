@@ -724,3 +724,5 @@
 @media (prefers-reduced-motion: reduce) {
   .dico-page-turn { animation: none !important; }
 }
+/* En-tête (3.5rem) et bandeau des mots repères collants : un élément focalisé n'est jamais caché dessous. */
+html { scroll-padding-top: 7rem; }

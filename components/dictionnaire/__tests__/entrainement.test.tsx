@@ -116,7 +116,7 @@ describe("un entraînement de bout en bout (R15–R25)", () => {
     const wrong = FIXTURE_DICTIONARY.pages[1].articles.find((a) => a.headword !== question.headword)!;
     await user.click(screen.getByRole("button", { name: wrong.headword }));
     expect(screen.getByRole("status", { name: "Indice" })).toHaveTextContent(
-      `Ce n'est pas « ${question.headword} », continue à chercher.`,
+      `Tu as touché « ${wrong.headword} ». Cherche encore « ${question.headword} ».`,
     );
   });
 
@@ -179,5 +179,43 @@ describe("un entraînement de bout en bout (R15–R25)", () => {
     expect(screen.getByText("0 bonne réponse sur 10")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "0 étoile sur 3" })).toBeInTheDocument();
     expect(await counts()).toEqual(before);
+  });
+});
+
+describe("focus au clavier pendant l'entraînement (WCAG 2.4.3)", () => {
+  it("garde le focus à chaque étape : réponse, correction, question suivante, résumé", async () => {
+    const [question] = expectedQuestions(["lire-article"]);
+    if (question.skill !== "lire-article") throw new Error("question inattendue");
+    const { user } = startSession(["lire-article"]);
+
+    await findArticle(user, question);
+    expect(screen.getByText(question.prompt)).toHaveFocus();
+
+    await choose(user, question);
+    expect(screen.getByRole("button", { name: "Question suivante" })).toHaveFocus();
+
+    await next(user);
+    expect(screen.getByRole("heading", { level: 2, name: "Question 2 sur 10" })).toHaveFocus();
+  });
+
+  it("donne le focus au résumé à la fin", async () => {
+    const { user } = startSession(["chercher"]);
+    for (let i = 0; i < 10; i++) {
+      await user.click(screen.getByRole("button", { name: "Je n'y arrive pas" }));
+      await next(user);
+    }
+    expect(screen.getByRole("heading", { name: "Entraînement terminé" })).toHaveFocus();
+  });
+
+  it("ranger : le bouton du mot déplacé garde le focus, même en tête de liste", async () => {
+    const [question] = expectedQuestions(["ranger"]);
+    if (question.skill !== "ranger") throw new Error("question inattendue");
+    const { user } = startSession(["ranger"]);
+
+    const word = question.shuffled[1];
+    screen.getByRole("button", { name: `Monter ${word}` }).focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: `Monter ${word}` })).toHaveFocus();
+    expect(screen.getByRole("button", { name: `Monter ${word}` })).toHaveAttribute("aria-disabled", "true");
   });
 });

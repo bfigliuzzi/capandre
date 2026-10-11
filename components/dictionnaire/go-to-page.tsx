@@ -47,7 +47,7 @@ export function GoToPage({ totalPages, onGo }: GoToPageProps) {
         </Button>
       </div>
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-destructive">
+        <p id={errorId} role="alert" className="text-base text-destructive">
           {error}
         </p>
       )}

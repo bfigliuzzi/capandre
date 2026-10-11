@@ -116,4 +116,6 @@ export interface Outcome {
   readonly correct: boolean;
   /** Texte de correction, en français : « Bonne réponse » ou « La bonne réponse était… ». */
   readonly message: string;
+  /** Bonne réponse après « Je n'y arrive pas » : ne compte pas, sans être une erreur. */
+  readonly helped?: boolean;
 }

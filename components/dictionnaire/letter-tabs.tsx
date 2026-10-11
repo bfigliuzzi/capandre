@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { LETTERS } from "@/lib/dictionnaire";
 import { cn } from "@/lib/utils";
 
@@ -15,19 +15,22 @@ interface LetterTabsProps {
  */
 export function LetterTabs({ available, onSelect }: LetterTabsProps) {
   const [open, setOpen] = useState(false);
+  const gridId = useId();
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div className="flex flex-col gap-2">
       <button
         type="button"
         aria-expanded={open}
-        aria-controls="dico-lettres"
+        ref={toggleRef}
+        aria-controls={gridId}
         onClick={() => setOpen((o) => !o)}
         className="min-h-11 self-start rounded-lg border-2 border-border px-4 font-bold md:hidden focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
         Lettres
       </button>
-      <nav id="dico-lettres" aria-label="Lettres" className={cn(open ? "grid" : "hidden", "grid-cols-7 gap-1 md:flex md:flex-wrap")}>
+      <nav id={gridId} aria-label="Lettres" className={cn(open ? "flex" : "hidden", "flex-wrap gap-1 md:flex")}>
         {LETTERS.map((letter) => {
           const enabled = available.has(letter);
           return (
@@ -39,7 +42,10 @@ export function LetterTabs({ available, onSelect }: LetterTabsProps) {
               onClick={() => {
                 if (!enabled) return;
                 onSelect(letter);
+                if (!open) return;
                 setOpen(false);
+                // La grille se ferme sous le focus : on le rend au bouton « Lettres ».
+                toggleRef.current?.focus();
               }}
               className={cn(
                 "size-11 rounded-lg border-2 border-border font-heading font-bold uppercase focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",

@@ -143,12 +143,12 @@ export function DictionaryBook({ dictionary, page, onPageChange, onSelectArticle
         )}
       </div>
 
-      <div className="flex justify-between gap-2">
-        <Button variant="outline" onClick={() => turn(-1)} disabled={page === 0}>
+      <div className="flex flex-wrap justify-between gap-2">
+        <Button variant="outline" onClick={() => turn(-1)} disabled={page === 0} focusableWhenDisabled>
           <ChevronLeft aria-hidden="true" />
           Page précédente
         </Button>
-        <Button variant="outline" onClick={() => turn(1)} disabled={shown[shown.length - 1] >= total}>
+        <Button variant="outline" onClick={() => turn(1)} disabled={shown[shown.length - 1] >= total} focusableWhenDisabled>
           Page suivante
           <ChevronRight aria-hidden="true" />
         </Button>

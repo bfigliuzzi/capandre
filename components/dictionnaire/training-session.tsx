@@ -1,12 +1,13 @@
 "use client";
 
-import { CircleCheck, CircleX } from "lucide-react";
-import { useEffect, useReducer, useRef, useState, type Dispatch } from "react";
+import { CircleCheck, CircleX, Lightbulb } from "lucide-react";
+import { useEffect, useReducer, useRef, useState, type Dispatch, type RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import {
   createTraining,
   currentQuestion,
   initTrainingUiState,
+  needsSearch,
   trainingScore,
   trainingUiReducer,
   type DictionaryFile,
@@ -34,6 +35,8 @@ interface StepProps {
   readonly state: TrainingUiState;
   readonly question: Question;
   readonly dispatch: Dispatch<TrainingAction>;
+  /** Reçoit le focus quand la phase change (WCAG 2.4.3). */
+  readonly focusRef: RefObject<HTMLElement | null>;
 }
 
 function SearchStep({ dictionary, state, question, dispatch }: StepProps) {
@@ -59,12 +62,14 @@ function SearchStep({ dictionary, state, question, dispatch }: StepProps) {
 
 /** Ce que l'enfant regarde pour répondre : la page, ou l'article trouvé. */
 function AnswerContext({ dictionary, question }: Pick<StepProps, "dictionary" | "question">) {
-  if (question.skill === "lire-page") return <DictionaryPageView page={dictionary.pages[question.page - 1]} />;
+  if (question.skill === "lire-page") {
+    return <DictionaryPageView page={dictionary.pages[question.page - 1]} headingLevel={3} />;
+  }
   if (!("target" in question)) return null;
   const article = dictionary.pages[question.target.page - 1].articles[question.target.index];
   return (
     <div className="flex flex-col gap-4">
-      <ArticleView article={article} />
+      <ArticleView article={article} headingLevel={3} />
       {question.skill === "sens-contexte" && (
         <blockquote className="rounded-xl border-l-4 border-primary bg-muted px-4 py-3 text-lg italic">{question.sentence}</blockquote>
       )}
@@ -72,16 +77,25 @@ function AnswerContext({ dictionary, question }: Pick<StepProps, "dictionary" | 
   );
 }
 
-function AnswerStep({ dictionary, state, question, dispatch }: StepProps) {
+function AnswerStep({ dictionary, state, question, dispatch, focusRef }: StepProps) {
   const submit = () => dispatch({ type: "valider" });
   if (question.skill === "ranger") {
-    return <OrderWords words={state.order} onMove={(from, to) => dispatch({ type: "deplacer", from, to })} onSubmit={submit} />;
+    return (
+      <OrderWords
+        key={state.index}
+        words={state.order}
+        onMove={(from, to) => dispatch({ type: "deplacer", from, to })}
+        onSubmit={submit}
+      />
+    );
   }
   if (!("choices" in question)) return null;
   return (
     <div className="flex flex-col gap-6">
       <AnswerContext dictionary={dictionary} question={question} />
       <ChoiceQuestion
+        key={state.index}
+        promptRef={focusRef}
         prompt={question.prompt}
         choices={question.choices}
         selected={state.selected}
@@ -92,14 +106,19 @@ function AnswerStep({ dictionary, state, question, dispatch }: StepProps) {
   );
 }
 
-function CorrectionStep({ dictionary, state, question, dispatch }: StepProps) {
+function CorrectionStep({ dictionary, state, question, dispatch, focusRef }: StepProps) {
   const last = state.index + 1 >= state.questions.length;
   return (
     <div className="flex flex-col gap-4">
       {question.skill === "chercher" && (
-        <DictionaryPageView page={dictionary.pages[question.target.page - 1]} highlight={question.target} />
+        <DictionaryPageView page={dictionary.pages[question.target.page - 1]} highlight={question.target} headingLevel={3} />
       )}
-      <Button onClick={() => dispatch({ type: "suivant" })} className="self-start">
+      <Button
+        ref={focusRef as RefObject<HTMLButtonElement | null>}
+        aria-describedby="dico-correction"
+        onClick={() => dispatch({ type: "suivant" })}
+        className="self-start"
+      >
         {last ? "Voir le résultat" : "Question suivante"}
       </Button>
     </div>
@@ -108,12 +127,13 @@ function CorrectionStep({ dictionary, state, question, dispatch }: StepProps) {
 
 function Correction({ state }: { readonly state: TrainingUiState }) {
   const outcome = state.phase === "correction" ? state.outcome : null;
-  const Icon = outcome?.correct ? CircleCheck : CircleX;
+  const Icon = outcome?.correct ? CircleCheck : outcome?.helped ? Lightbulb : CircleX;
+  const tone = outcome?.correct ? "text-success" : outcome?.helped ? "text-info" : "text-destructive";
   return (
-    <div role="status" aria-label="Correction" className="empty:hidden">
+    <div role="status" aria-label="Correction" id="dico-correction">
       {outcome && (
         <p className="flex items-center gap-2 rounded-xl border-2 border-border p-4 text-lg font-bold">
-          <Icon aria-hidden="true" className={outcome.correct ? "size-6 text-success" : "size-6 text-destructive"} />
+          <Icon aria-hidden="true" className={`size-6 ${tone}`} />
           {outcome.message}
         </p>
       )}
@@ -126,13 +146,20 @@ function TrainingRun({ dictionary, skills, rng, onRestart }: TrainingSessionProp
     initTrainingUiState(createTraining(dictionary, skills, rng)),
   );
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => headingRef.current?.focus(), [state.index]);
+  const phaseRef = useRef<HTMLElement>(null);
+  // Le contrôle qui avait le focus disparaît à chaque étape : on le pose sur la cible de la nouvelle phase.
+  const shown = currentQuestion(state);
+  const startsOnAnswer = state.phase === "repondre" && shown !== null && !needsSearch(shown);
+  useEffect(() => {
+    const target = startsOnAnswer ? headingRef.current : (phaseRef.current ?? headingRef.current);
+    target?.focus();
+  }, [state.index, state.phase, startsOnAnswer]);
 
   const question = currentQuestion(state);
   if (state.phase === "fin" || !question) {
     return <TrainingSummary score={trainingScore(state)} total={state.questions.length} onRestart={onRestart} />;
   }
-  const step = { dictionary, state, question, dispatch };
+  const step = { dictionary, state, question, dispatch, focusRef: phaseRef };
   return (
     <section aria-labelledby="dico-question" className="flex flex-col gap-4">
       <h2 id="dico-question" ref={headingRef} tabIndex={-1} className="font-heading text-xl font-bold focus-visible:outline-none">

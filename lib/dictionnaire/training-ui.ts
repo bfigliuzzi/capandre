@@ -16,7 +16,7 @@ export interface TrainingUiState {
   readonly page: number;
   /** Affiché à l'enfant, sans effet sur la note (R17). */
   readonly pagesTurned: number;
-  /** « Ce n'est pas renard, continue à chercher. » */
+  /** « Tu as touché « loup ». Cherche encore « renard ». » */
   readonly hint: string | null;
   /** « Je n'y arrive pas » pendant la recherche : la question comptera faux. */
   readonly gaveUp: boolean;
@@ -89,13 +89,13 @@ function correct(state: TrainingUiState, outcome: Outcome): TrainingUiState {
 /** Après « Je n'y arrive pas », une bonne réponse ne compte pas, mais on le dit sans punir. */
 function afterHelp(outcome: Outcome): Outcome {
   if (!outcome.correct) return outcome;
-  return { correct: false, message: "Bonne réponse ! Le mot a été trouvé avec de l'aide : elle ne compte pas." };
+  return { correct: false, helped: true, message: "Bonne réponse ! Le mot a été trouvé avec de l'aide : elle ne compte pas." };
 }
 
 function touchArticle(state: TrainingUiState, question: Question, headword: string): TrainingUiState {
   if (!needsSearch(question)) return state;
   if (headword !== question.headword) {
-    return { ...state, hint: `Ce n'est pas « ${question.headword} », continue à chercher.` };
+    return { ...state, hint: `Tu as touché « ${headword} ». Cherche encore « ${question.headword} ».` };
   }
   if (question.skill === "chercher") return correct(state, checkAnswer(question, { kind: "article", headword }));
   return { ...state, phase: "repondre", hint: null };
