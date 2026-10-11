@@ -65,4 +65,4 @@ export {
 
 export { installDictionary, installedDictionaryVersion, loadDictionary } from "./dictionary-operations";
 export { DICTIONARY_URL, useDictionary } from "./dictionary-hooks";
-export type { DictionaryState } from "./dictionary-hooks";
+export type { DictionaryState, UseDictionaryResult } from "./dictionary-hooks";

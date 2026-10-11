@@ -141,20 +141,27 @@ function Correction({ state }: { readonly state: TrainingUiState }) {
   );
 }
 
-function TrainingRun({ dictionary, skills, rng, onRestart }: TrainingSessionProps & { readonly onRestart: () => void }) {
-  const [state, dispatch] = useReducer(trainingUiReducer, undefined, () =>
-    initTrainingUiState(createTraining(dictionary, skills, rng)),
-  );
+/**
+ * Le contrôle qui avait le focus disparaît à chaque étape (WCAG 2.4.3) : on pose le focus
+ * sur la cible de la nouvelle phase, ou sur le titre de la question à défaut.
+ */
+function usePhaseFocus(state: TrainingUiState) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const phaseRef = useRef<HTMLElement>(null);
-  // Le contrôle qui avait le focus disparaît à chaque étape : on le pose sur la cible de la nouvelle phase.
   const shown = currentQuestion(state);
   const startsOnAnswer = state.phase === "repondre" && shown !== null && !needsSearch(shown);
   useEffect(() => {
     const target = startsOnAnswer ? headingRef.current : (phaseRef.current ?? headingRef.current);
     target?.focus();
   }, [state.index, state.phase, startsOnAnswer]);
+  return { headingRef, phaseRef };
+}
 
+function TrainingRun({ dictionary, skills, rng, onRestart }: TrainingSessionProps & { readonly onRestart: () => void }) {
+  const [state, dispatch] = useReducer(trainingUiReducer, undefined, () =>
+    initTrainingUiState(createTraining(dictionary, skills, rng)),
+  );
+  const { headingRef, phaseRef } = usePhaseFocus(state);
   const question = currentQuestion(state);
   if (state.phase === "fin" || !question) {
     return <TrainingSummary score={trainingScore(state)} total={state.questions.length} onRestart={onRestart} />;

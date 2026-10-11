@@ -219,3 +219,31 @@ describe("focus au clavier pendant l'entraînement (WCAG 2.4.3)", () => {
     expect(screen.getByRole("button", { name: `Monter ${word}` })).toHaveAttribute("aria-disabled", "true");
   });
 });
+
+describe("aide et gardes de l'entraînement", () => {
+  it("après « Je n'y arrive pas », la bonne réponse est saluée mais ne compte pas", async () => {
+    const [question] = expectedQuestions(["lire-article"]);
+    if (question.skill !== "lire-article") throw new Error("question inattendue");
+    const { user } = startSession(["lire-article"]);
+
+    await user.click(screen.getByRole("button", { name: "Je n'y arrive pas" }));
+    expect(screen.getByRole("article", { name: question.headword })).toBeInTheDocument();
+    await choose(user, question);
+
+    expect(screen.getByRole("status", { name: "Correction" })).toHaveTextContent(/Bonne réponse ! .*elle ne compte pas/);
+  });
+
+  it("« Valider » sans choix explique quoi faire, puis l'explication disparaît dès qu'on choisit", async () => {
+    const [question] = expectedQuestions(["lire-page"]);
+    if (question.skill !== "lire-page") throw new Error("question inattendue");
+    const { user } = startSession(["lire-page"]);
+
+    await user.click(screen.getByRole("button", { name: "Valider" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Choisis une réponse.");
+    expect(screen.queryByRole("status", { name: "Correction" })).toBeEmptyDOMElement();
+
+    screen.getAllByRole("radio")[0].focus();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+});

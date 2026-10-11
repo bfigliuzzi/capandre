@@ -88,6 +88,17 @@ describe("toArticle — filtres d'un article (R28)", () => {
     expect(article?.senses[1].quizExample).toBe("Les enfants glissent sur la glace !");
   });
 
+  it("ne garde pas une phrase de question affichée comme exemple d'un autre sens (R22)", () => {
+    const article = toArticle(
+      candidate([
+        sense("creuser", ["On mine la colline.", "Les eaux minent la falaise peu à peu."]),
+        sense("poser des mines", ["Les eaux minent la falaise peu à peu.", "Les soldats minent le pont."]),
+      ]),
+    );
+    expect(article?.senses[0].quizExample).toBeUndefined();
+    expect(article?.senses[1].quizExample).toBe("Les soldats minent le pont.");
+  });
+
   it("ignore un exemple qui ne contient aucune lettre", () => {
     const article = toArticle(candidate([sense("miroir", ["'''''''", "Elle se regarde dans la glace."])]));
     expect(article?.senses[0].example).toBe("Elle se regarde dans la glace.");

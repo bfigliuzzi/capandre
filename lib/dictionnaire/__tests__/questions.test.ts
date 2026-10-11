@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { seededRng } from "../../multiplication/__tests__/test-rng";
 import { compareHeadwords } from "../collation";
 import { generateQuestion } from "../questions";
-import type { Question, Skill } from "../types";
+import { paginate } from "../pagination";
+import type { Article, Question, Skill } from "../types";
 import { FIXTURE_DICTIONARY } from "./fixtures";
 
 const SEEDS = Array.from({ length: 30 }, (_, i) => i + 1);
@@ -271,6 +272,60 @@ describe("phrase de question jamais affichée (R22)", () => {
       const ctx = { dictionary, rng: seededRng(seed), usedWords: new Set<string>() };
       expect(generateQuestion("sens-contexte", ctx)).toBeNull();
       expect(generateQuestion("utiliser-sens", ctx)).toBeNull();
+    }
+  });
+});
+
+describe("mauvaises propositions vérifiées contre tout le dictionnaire", () => {
+  function entry(headword: string, nature: Article["nature"], extra: Partial<Article> = {}): Article {
+    return { headword, nature, senses: [{ definition: headword }], synonyms: [], antonyms: [], source: "dicoado", ...extra };
+  }
+
+  it("lire une page : un homographe à cheval sur deux pages n'est jamais proposé comme absent", () => {
+    const articles = [
+      entry("abri", "nom"), entry("bien", "adverbe"),
+      entry("bien", "nom"), entry("bol", "nom"),
+      entry("cil", "nom"), entry("dé", "nom"),
+    ];
+    const pages = paginate(articles, 2);
+    const dictionary = { version: 1, articlesPerPage: 2, pages };
+    for (const seed of Array.from({ length: 200 }, (_, i) => i + 1)) {
+      const q = generateQuestion("lire-page", { dictionary, rng: seededRng(seed), usedWords: new Set() });
+      if (!q || q.skill !== "lire-page" || q.choices.length !== 2) continue;
+      const onPage = pages[q.page - 1].articles.some((a) => a.headword === q.words[0]);
+      expect(q.choices[q.answerIndex]).toBe(onPage ? "Oui" : "Non");
+    }
+  });
+
+  it("lire un article : un mot qui cite l'article comme synonyme n'est pas une mauvaise proposition", () => {
+    const articles = [
+      entry("profiter", "verbe", { synonyms: ["jouir"] }),
+      entry("bénéficier", "verbe", { synonyms: ["profiter"] }),
+      entry("courir", "verbe"), entry("manger", "verbe"), entry("dormir", "verbe"), entry("lire", "verbe"),
+    ];
+    const dictionary = { version: 1, articlesPerPage: 8, pages: paginate(articles, 8) };
+    for (const seed of Array.from({ length: 300 }, (_, i) => i + 1)) {
+      const q = generateQuestion("lire-article", { dictionary, rng: seededRng(seed), usedWords: new Set() });
+      if (!q || q.skill !== "lire-article" || q.field !== "synonyme" || q.headword !== "profiter") continue;
+      expect(q.choices).not.toContain("bénéficier");
+    }
+  });
+
+  it("R22 : une phrase de question n'est jamais l'exemple affiché d'un autre sens de l'article", () => {
+    const articles = [
+      entry("miner", "verbe", {
+        senses: [
+          { definition: "creuser", example: "On mine la colline.", quizExample: "Les eaux minent la falaise peu à peu." },
+          { definition: "affaiblir", example: "Le chagrin la mine.", quizExample: "Les eaux minent la falaise peu à peu." },
+          { definition: "poser des mines", example: "Les eaux minent la falaise peu à peu.", quizExample: "Les soldats minent le pont avant de partir." },
+        ],
+      }),
+    ];
+    const dictionary = { version: 1, articlesPerPage: 8, pages: paginate(articles, 8) };
+    for (const seed of SEEDS) {
+      const ctx = { dictionary, rng: seededRng(seed), usedWords: new Set<string>() };
+      const q = generateQuestion("utiliser-sens", ctx);
+      for (const choice of q && "choices" in q ? q.choices : []) expect(choice).not.toBe("Les eaux minent la falaise peu à peu.");
     }
   });
 });

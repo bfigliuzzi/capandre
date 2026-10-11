@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { useDictionary } from "@/lib/db";
 import type { DictionaryFile } from "@/lib/dictionnaire";
 
@@ -10,7 +11,7 @@ interface DictionaryLoaderProps {
 
 /** États du module : copie en cours, erreur à la première ouverture, prêt (R31, R32). */
 export function DictionaryLoader({ children }: DictionaryLoaderProps) {
-  const state = useDictionary();
+  const { state, retry } = useDictionary();
 
   if (state.status === "pret") return <>{children(state.dictionary)}</>;
 
@@ -35,8 +36,11 @@ export function DictionaryLoader({ children }: DictionaryLoaderProps) {
           </p>
         </>
       ) : (
-        <p className="text-base">Le dictionnaire n&apos;a pas pu être préparé. Recharge la page pour réessayer.</p>
+        <p className="text-base">Le dictionnaire n&apos;a pas pu être préparé.</p>
       )}
+      <Button variant="outline" onClick={retry} className="self-start">
+        Réessayer
+      </Button>
     </div>
   );
 }

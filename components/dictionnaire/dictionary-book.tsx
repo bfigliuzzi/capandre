@@ -83,17 +83,20 @@ function useSwipe(onTurn: (step: number) => void) {
   };
 }
 
-/** Le livre : couverture, pages, onglets, aller à la page, tourner (R1, R5–R11). */
-export function DictionaryBook({ dictionary, page, onPageChange, onSelectArticle, highlight }: DictionaryBookProps) {
-  const total = dictionary.pages.length;
+interface BookNavigation {
+  readonly shown: readonly number[];
+  readonly direction: "forward" | "back";
+  readonly turned: boolean;
+  readonly goTo: (target: number) => void;
+  readonly turn: (step: number) => void;
+}
+
+/** Pages affichées (une, ou deux face à face) et déplacements dans le livre. */
+function useBookNavigation(page: number, total: number, onPageChange: (page: number) => void): BookNavigation {
   const spread = useMediaQuery(SPREAD_QUERY);
-  const reducedMotion = usePrefersReducedMotion();
   const [direction, setDirection] = useState<"forward" | "back">("forward");
   const [turned, setTurned] = useState(false);
-  const letters = useMemo(() => lettersWithArticles(dictionary.pages), [dictionary]);
-
   const shown = spread ? spreadOf(page, total).filter((n): n is number => n !== null) : [page];
-  const shownPages = shown.filter((n) => n > 0).map((n) => dictionary.pages[n - 1]);
 
   function goTo(target: number) {
     if (target === page) return;
@@ -106,28 +109,63 @@ export function DictionaryBook({ dictionary, page, onPageChange, onSelectArticle
     goTo(turnPage(spread ? spreadOf(page, total)[0] : page, spread ? step * 2 : step, total));
   }
 
-  useArrowKeys(turn);
-  const swipe = useSwipe(turn);
+  return { shown, direction, turned, goTo, turn };
+}
+
+interface PageControlsProps {
+  readonly onTurn: (step: number) => void;
+  readonly atStart: boolean;
+  readonly atEnd: boolean;
+}
+
+function PageControls({ onTurn, atStart, atEnd }: PageControlsProps) {
+  return (
+    <div className="flex flex-wrap justify-between gap-2">
+      <Button variant="outline" onClick={() => onTurn(-1)} disabled={atStart} focusableWhenDisabled>
+        <ChevronLeft aria-hidden="true" />
+        Page précédente
+      </Button>
+      <Button variant="outline" onClick={() => onTurn(1)} disabled={atEnd} focusableWhenDisabled>
+        Page suivante
+        <ChevronRight aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+function BookToolbar({ dictionary, onGo }: { readonly dictionary: DictionaryFile; readonly onGo: (page: number) => void }) {
+  const letters = useMemo(() => lettersWithArticles(dictionary.pages), [dictionary]);
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <LetterTabs
+        available={letters}
+        onSelect={(letter) => {
+          const target = firstPageOfLetter(dictionary.pages, letter);
+          if (target !== null) onGo(target);
+        }}
+      />
+      <GoToPage totalPages={dictionary.pages.length} onGo={onGo} />
+    </div>
+  );
+}
+
+/** Le livre : couverture, pages, onglets, aller à la page, tourner (R1, R5–R11). */
+export function DictionaryBook({ dictionary, page, onPageChange, onSelectArticle, highlight }: DictionaryBookProps) {
+  const total = dictionary.pages.length;
+  const reducedMotion = usePrefersReducedMotion();
+  const nav = useBookNavigation(page, total, onPageChange);
+  const shownPages = nav.shown.filter((n) => n > 0).map((n) => dictionary.pages[n - 1]);
+  useArrowKeys(nav.turn);
+  const swipe = useSwipe(nav.turn);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <LetterTabs
-          available={letters}
-          onSelect={(letter) => {
-            const target = firstPageOfLetter(dictionary.pages, letter);
-            if (target !== null) goTo(target);
-          }}
-        />
-        <GoToPage totalPages={total} onGo={goTo} />
-      </div>
-
+    <div className="dico-book flex flex-col gap-4">
+      <BookToolbar dictionary={dictionary} onGo={nav.goTo} />
       <p role="status" className="sr-only">
-        {turned ? pageAnnouncement(shownPages, total) : ""}
+        {nav.turned ? pageAnnouncement(shownPages, total) : ""}
       </p>
-
       <div className="flex touch-pan-y gap-4" {...swipe}>
-        {shown.map((n) =>
+        {nav.shown.map((n) =>
           n === 0 ? (
             <Cover key="cover" totalPages={total} />
           ) : (
@@ -136,23 +174,13 @@ export function DictionaryBook({ dictionary, page, onPageChange, onSelectArticle
               page={dictionary.pages[n - 1]}
               onSelectArticle={onSelectArticle}
               highlight={highlight}
-              animated={turned && !reducedMotion}
-              direction={direction}
+              animated={nav.turned && !reducedMotion}
+              direction={nav.direction}
             />
           ),
         )}
       </div>
-
-      <div className="flex flex-wrap justify-between gap-2">
-        <Button variant="outline" onClick={() => turn(-1)} disabled={page === 0} focusableWhenDisabled>
-          <ChevronLeft aria-hidden="true" />
-          Page précédente
-        </Button>
-        <Button variant="outline" onClick={() => turn(1)} disabled={shown[shown.length - 1] >= total} focusableWhenDisabled>
-          Page suivante
-          <ChevronRight aria-hidden="true" />
-        </Button>
-      </div>
+      <PageControls onTurn={nav.turn} atStart={page === 0} atEnd={nav.shown[nav.shown.length - 1] >= total} />
     </div>
   );
 }

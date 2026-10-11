@@ -59,9 +59,13 @@ function pageError(value: unknown, expectedNumber: number): string | null {
   return bad === -1 ? null : `page ${expectedNumber} : article ${bad + 1} invalide`;
 }
 
-export function validateDictionaryFile(value: unknown): ValidationResult {
+/** `expectedVersion` : un fichier d'une autre version serait retéléchargé à chaque ouverture. */
+export function validateDictionaryFile(value: unknown, expectedVersion?: number): ValidationResult {
   if (!isShape(value)) return { ok: false, error: "le fichier n'est pas un objet" };
   if (typeof value.version !== "number") return { ok: false, error: "version absente" };
+  if (expectedVersion !== undefined && value.version !== expectedVersion) {
+    return { ok: false, error: `version ${value.version}, attendue ${expectedVersion}` };
+  }
   if (typeof value.articlesPerPage !== "number") return { ok: false, error: "articlesPerPage absent" };
   if (!Array.isArray(value.pages) || value.pages.length === 0) return { ok: false, error: "aucune page" };
   for (const [i, page] of value.pages.entries()) {

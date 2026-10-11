@@ -1,8 +1,9 @@
 import { screen } from "@testing-library/react";
 import { openDB } from "idb";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { DictionaryLoader } from "@/components/dictionnaire/dictionary-loader";
 import { getDB } from "@/lib/db/database";
+import { FIXTURE_DICTIONARY } from "@/lib/dictionnaire/__tests__/fixtures";
 import { offline, renderApp, serveDictionary } from "@/test/render-app";
 
 function Ready() {
@@ -41,6 +42,33 @@ describe("chargement du dictionnaire (R31, R32)", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/n'a pas pu être préparé/);
     expect(await (await getDB()).count("dictionaryPages")).toBe(0);
+  });
+
+  it("ne confond pas un fichier illisible ou absent avec une absence de réseau", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("<html>pas du JSON</html>", { status: 200 })));
+    const first = renderApp(<Ready />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/n'a pas pu être préparé/);
+    first.unmount();
+
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 404 })));
+    renderApp(<Ready />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/n'a pas pu être préparé/);
+  });
+
+  it("refuse un fichier d'une autre version que celle attendue", async () => {
+    serveDictionary({ ...FIXTURE_DICTIONARY, version: 99 });
+    renderApp(<Ready />);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/n'a pas pu être préparé/);
+  });
+
+  it("propose de réessayer une fois le réseau revenu", async () => {
+    offline();
+    const { user } = renderApp(<Ready />);
+    await screen.findByRole("alert");
+
+    serveDictionary();
+    await user.click(screen.getByRole("button", { name: "Réessayer" }));
+    expect(await screen.findByText("Dictionnaire prêt : 9 pages")).toBeInTheDocument();
   });
 
   it("migre une base v4 sans toucher aux dictées existantes", async () => {

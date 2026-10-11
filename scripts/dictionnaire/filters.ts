@@ -30,11 +30,14 @@ function isSentence(text: string): boolean {
   return wordCount(text) >= MIN_QUIZ_WORDS && /[.!?…»]$/.test(text);
 }
 
-function toSense(candidate: CandidateSense): Sense {
-  const [example, ...others] = candidate.examples
-    .map((e) => e.trim())
-    .filter((e) => /\p{L}/u.test(e) && wordCount(e) <= MAX_EXAMPLE_WORDS);
-  const quizExample = others.find(isSentence);
+function shortExamples(candidate: CandidateSense): string[] {
+  return candidate.examples.map((e) => e.trim()).filter((e) => /\p{L}/u.test(e) && wordCount(e) <= MAX_EXAMPLE_WORDS);
+}
+
+/** `displayed` : les exemples affichés de tout l'article, qu'une phrase de question ne reprend jamais (R22). */
+function toSense(candidate: CandidateSense, displayed: ReadonlySet<string>): Sense {
+  const [example, ...others] = shortExamples(candidate);
+  const quizExample = others.find((e) => isSentence(e) && !displayed.has(e));
   return {
     definition: candidate.definition.trim(),
     ...(example ? { example } : {}),
@@ -49,10 +52,11 @@ function relatedWords(words: readonly string[], headword: string): string[] {
 
 /** L'article livré, ou null si aucun sens ne reste après filtrage. */
 export function toArticle(candidate: Candidate): Article | null {
-  const senses = candidate.senses
+  const kept = candidate.senses
     .filter((s) => s.marks.length === 0 && s.definition.trim().length > 0)
-    .slice(0, MAX_SENSES)
-    .map(toSense);
+    .slice(0, MAX_SENSES);
+  const displayed = new Set(kept.flatMap((s) => shortExamples(s).slice(0, 1)));
+  const senses = kept.map((s) => toSense(s, displayed));
   if (senses.length === 0) return null;
   return {
     headword: candidate.headword,

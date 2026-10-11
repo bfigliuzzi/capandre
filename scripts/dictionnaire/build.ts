@@ -3,7 +3,7 @@
 // Les sources sont gardées dans .cache/dictionnaire/ (non versionné) : un second
 // passage ne retélécharge rien.
 import { createWriteStream, existsSync, readFileSync } from "node:fs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rename, writeFile } from "node:fs/promises";
 import { get } from "node:https";
 import { join } from "node:path";
 import { pipeline } from "node:stream/promises";
@@ -34,7 +34,9 @@ async function downloadRaw(url: string, path: string, headers: Record<string, st
     get(url, { headers }, resolve).on("error", reject),
   );
   if (response.statusCode !== 200) throw new Error(`${url} : HTTP ${response.statusCode}`);
-  await pipeline(response, createWriteStream(path));
+  // Écrit à côté puis renomme : un téléchargement interrompu ne laisse pas un cache tronqué.
+  await pipeline(response, createWriteStream(`${path}.part`));
+  await rename(`${path}.part`, path);
 }
 
 function readExclusions(): Set<string> {
@@ -53,7 +55,11 @@ async function buildArticles(): Promise<Article[]> {
   console.log(`Dico des Ados : ${dicoado.length} articles lus`);
   const wiktionnaire = await readKaikki(kaikkiPath, new Set(lemmas.map((l) => l.headword)));
   console.log(`Wiktionnaire : ${wiktionnaire.length} entrées lues`);
-  return mergeSources(lemmas, dicoado, wiktionnaire, TARGET_ARTICLES);
+  // Une source vide ou un dictionnaire trop court veut dire qu'un format a changé : on s'arrête.
+  if (dicoado.length === 0 || wiktionnaire.length === 0) throw new Error("Une source n'a rien produit.");
+  const articles = mergeSources(lemmas, dicoado, wiktionnaire, TARGET_ARTICLES);
+  if (articles.length < TARGET_ARTICLES) throw new Error(`${articles.length} articles seulement, ${TARGET_ARTICLES} attendus.`);
+  return articles;
 }
 
 function kilobytes(bytes: number): string {
@@ -82,7 +88,7 @@ async function main(): Promise<void> {
     articlesPerPage: ARTICLES_PAR_PAGE,
     pages: paginate(articles, ARTICLES_PAR_PAGE),
   };
-  const validation = validateDictionaryFile(file);
+  const validation = validateDictionaryFile(file, DICTIONARY_DATA_VERSION);
   if (!validation.ok) throw new Error(`Fichier produit invalide : ${validation.error}`);
   const json = JSON.stringify(file);
   await mkdir(join(OUTPUT, ".."), { recursive: true });

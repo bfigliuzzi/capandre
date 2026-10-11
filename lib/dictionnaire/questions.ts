@@ -124,7 +124,11 @@ function wordOnPageQuestion(ctx: GeneratorContext, page: DictionaryPage): Questi
   const unused = (p: DictionaryPage | undefined) =>
     (p?.articles ?? []).map((a) => a.headword).filter((w) => !ctx.usedWords.has(w));
   const here = unused(page);
-  const nearby = [...unused(ctx.dictionary.pages[page.number - 2]), ...unused(ctx.dictionary.pages[page.number])];
+  // Un homographe peut finir la page N et ouvrir la page N+1 : il est alors bien sur la page N.
+  const onPage = new Set(page.articles.map((a) => a.headword));
+  const nearby = [...unused(ctx.dictionary.pages[page.number - 2]), ...unused(ctx.dictionary.pages[page.number])].filter(
+    (w) => !onPage.has(w),
+  );
   const wantsYes = ctx.rng() < 0.5;
   const pool = (wantsYes && here.length > 0) || nearby.length === 0 ? here : nearby;
   if (pool.length === 0) return null;
@@ -172,9 +176,11 @@ function relatedWordChoices(field: "synonyme" | "contraire"): FieldBuilder {
     const own = field === "synonyme" ? article.synonyms : article.antonyms;
     if (own.length === 0) return null;
     const related = new Set([article.headword, ...article.synonyms, ...article.antonyms]);
+    // Un mot dont l'article cite celui-ci comme synonyme ou contraire serait une réponse juste.
+    const citesArticle = (a: Article) => [...a.synonyms, ...a.antonyms].includes(article.headword);
     const others = locateAll(ctx.dictionary)
       .map((l) => l.article)
-      .filter((a) => a.nature === article.nature && !related.has(a.headword))
+      .filter((a) => a.nature === article.nature && !related.has(a.headword) && !citesArticle(a))
       .map((a) => a.headword);
     const wrongs = shuffleWithRng([...new Set(others)], ctx.rng).slice(0, CHOICES_PER_QUESTION - 1);
     if (wrongs.length < CHOICES_PER_QUESTION - 1) return null;
@@ -223,10 +229,9 @@ interface QuizSense {
 
 /** Sens utilisables en question : phrase réservée, différente de l'exemple affiché (R22). */
 function quizSenses(article: Article): QuizSense[] {
+  const displayed = new Set(article.senses.map((s) => s.example));
   return article.senses.flatMap((sense, i) =>
-    sense.quizExample && sense.quizExample !== sense.example
-      ? [{ number: i + 1, sentence: sense.quizExample }]
-      : [],
+    sense.quizExample && !displayed.has(sense.quizExample) ? [{ number: i + 1, sentence: sense.quizExample }] : [],
   );
 }
 
