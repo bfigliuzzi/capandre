@@ -50,3 +50,10 @@ constat bloquant en revue. La connexion ne sert qu'à synchroniser entre apparei
 - Injecter le RNG (`lib/multiplication/__tests__/test-rng.ts`) plutôt que mocker.
 - 80 % de couverture sur `lib/`, suite complète sous 30 s.
 - Correction de bug : le test qui échoue s'écrit **en premier**.
+- **Testing trophy** : l'essentiel passe par des tests d'écran `__tests__/[nom].test.tsx`
+  (projet vitest `ecrans`, jsdom, `fake-indexeddb`, Testing Library). On agit comme l'enfant
+  et on vérifie ce qu'il voit. Point d'entrée unique : `test/render-app.tsx` (`renderApp`,
+  `seedDictionary`, `serveDictionary`, `offline`). Chaque test part d'une base vide.
+- Les tests unitaires `.test.ts` (projet `logique`, node) restent pour les règles qu'un test
+  d'écran laisserait passer : ordre, seuils, éligibilité, cas limites.
+- Pas de test unitaire de `lib/db/` : la persistance se teste à travers les écrans.

@@ -35,6 +35,8 @@ app/(app)/dictee/           Module Dictée (list, new, [id], [id]/edit, [id]/cor
 app/(app)/poesie/           Module Poésie (list, new, [id], [id]/edit)
 app/(app)/tables/           Tables de multiplication (list, revision, exercice,
                             exercice/session, trophees)
+app/(app)/dictionnaire/     Dictionnaire (accueil, livre, entrainement,
+                            entrainement/session, a-propos)
 ```
 
 Tous les composants de page sont `"use client"` et configurent le header via `useSetHeader()`
@@ -62,7 +64,7 @@ Tous les composants de page sont `"use client"` et configurent le header via `us
 lib/db/schema.ts                     Types : Module, Level, Dictation, Poem, Word, Verse,
                                      Stanza, MultiplicationDifficulty, MultiplicationFactProgress,
                                      MultiplicationSessionRecord, UnlockedBadge, AppSettings
-lib/db/database.ts                   getDB() singleton, migrations versionnées (v4)
+lib/db/database.ts                   getDB() singleton, migrations versionnées (v5), closeDB() pour les tests
 lib/db/operations.ts                 CRUD : getAll, getAllByIndex, getById, create, update, remove
 lib/db/hooks.ts                      useDictations, usePoems, useDictation, usePoem,
                                      useDictationMutations, usePoemMutations, useHasContent
@@ -71,10 +73,15 @@ lib/db/multiplication-operations.ts  getFactProgress, getRecentSessions, getUnlo
                                      getSettings/putSettings, recordSession (transaction unique)
 lib/db/multiplication-hooks.ts       useMultiplicationProgress, useMultiplicationSessions,
                                      useUnlockedBadges, useSettings, useMultiplicationMutations
+lib/db/dictionary-operations.ts      installDictionary (vidage + remplissage, transaction unique),
+                                     installedDictionaryVersion, loadDictionary
+lib/db/dictionary-hooks.ts           useDictionary : copie le fichier livré à la 1re ouverture
 ```
 
 Stores : `modules`, `levels`, `dictations`, `poems`, `multiplicationFacts` (index `by-table`),
-`multiplicationSessions` (index `by-date`, `by-difficulty`), `multiplicationBadges`, `settings`.
+`multiplicationSessions` (index `by-date`, `by-difficulty`), `multiplicationBadges`, `settings`,
+`dictionaryPages` (clé `number`, une page du dictionnaire par enregistrement ; la version copiée
+est notée dans `settings.dictionaryVersion`).
 Indexés par `by-module` là où c'est pertinent.
 
 ## Moteur multiplication (`lib/multiplication/`)
@@ -96,6 +103,19 @@ badges.ts          BadgeDefinition, BADGES (14 badges, jamais révoqués), getBa
 index.ts           Exports barrel
 __tests__/         describe/it en français, helper test-rng.ts
 ```
+
+## Module dictionnaire (`lib/dictionnaire/`, `scripts/dictionnaire/`)
+
+Logique pure sur le modèle de `lib/multiplication/` : `collation` (ordre alphabétique français,
+accents départagés par la fin), `pagination` (pages et mots repères), `navigation`, `format`,
+`questions` (un générateur par compétence, avec son éligibilité), `training` (10 questions,
+correction, étoiles), `training-ui` (réducteur de l'écran), `validate` (forme du fichier livré).
+
+Les données sont figées dans le dépôt (ADR 0001) : `pnpm dictionnaire:build` lit Manulex, le
+Dico des Ados et le Wiktionnaire (kaikki.org), filtre, fusionne, appelle `paginate` et écrit
+`public/dictionnaire/dictionnaire-v<N>.json`. Le découpage en pages vient du fichier, jamais
+recalculé par l'app. Changer le contenu, c'est créer `v<N+1>` et monter
+`DICTIONARY_DATA_VERSION` : l'app recopie alors le fichier en base.
 
 ## Parsing (`lib/parsing.ts`)
 

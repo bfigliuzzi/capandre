@@ -29,6 +29,7 @@ pnpm test           # Vitest, une passe
 pnpm test:watch     # Vitest en watch
 pnpm verify         # lint + typecheck + test + build — la boucle de feedback
 pnpm exec vitest run lib/multiplication/__tests__/session.test.ts   # Un seul fichier
+pnpm dictionnaire:build   # Regénère public/dictionnaire/ (sources en cache dans .cache/)
 ```
 
 ## Cycle de développement
@@ -92,6 +93,9 @@ Détail complet : `docs/architecture.md`.
   `document.title` mis à jour à la navigation, textes AT en français.
 - Tests : `__tests__/[nom].test.ts` à côté de la source, `describe`/`it` en français,
   80 % de couverture sur la logique métier, suite complète sous 30 s.
+- Testing trophy : surtout des **tests d'écran** `__tests__/[nom].test.tsx` (jsdom,
+  `fake-indexeddb`, Testing Library), rendus via `test/render-app.tsx`. Les tests unitaires
+  `.test.ts` (node) ne couvrent que les règles qu'un test d'écran laisserait passer.
 
 ## Erreurs déjà commises (ne pas recommencer)
 
