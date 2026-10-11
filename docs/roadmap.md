@@ -35,8 +35,11 @@
 | M2-02 | Module Conjugaison | Révision des conjugaisons par temps et groupe | Important |
 | M2-03 | Firebase Auth | Authentification facultative (Google, email) | Important |
 | M2-04 | Synchro multi-appareils | Synchronisation Firestore quand connecté | Important |
+| M2-05 | Module Dictionnaire | Dictionnaire à feuilleter comme un livre papier (onglets, mots repères, pages) + entraînement aux compétences de la fiche d'évaluation | Important |
 
 **M2-01 :** ✅ Livré — moteur `lib/multiplication/`, routes `app/(app)/tables/`.
+
+**M2-05 :** ✅ Livré — moteur `lib/dictionnaire/`, données `public/dictionnaire/` (script `scripts/dictionnaire/`), routes `app/(app)/dictionnaire/`.
 
 ### M3 — Langues & Grammaire
 

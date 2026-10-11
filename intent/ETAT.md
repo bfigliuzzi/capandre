@@ -10,6 +10,7 @@ Un dossier préfixé `DONE-` est terminé. `ls intent/` suffit donc à voir l'é
 | Unité | Étape | Dernière action | Le | Prochaine étape |
 |---|---|---|---|---|
 | `DONE-DETTE-01-conventions` | terminée | Constats de revue corrigés ; 0 emoji et 0 couleur littérale, hook bloquant | 2026-09-13 | Relecture visuelle clair/sombre par le demandeur |
+| `DONE-M2-05-dictionnaire` | terminée | Livré sur `main` : livre, entraînement, données v1 ; revue et a11y corrigées | 2026-10-11 | Vérification manuelle par le demandeur : téléphone, tablette en paysage, glissement, animation coupée |
 
 > Le cycle lui-même (artefacts, hooks, skills, subagents, evals) a été posé le 2026-09-13,
 > avant que la convention `intent/` existe : il n'a donc pas de dossier. Voir `docs/sdlc.md`.
